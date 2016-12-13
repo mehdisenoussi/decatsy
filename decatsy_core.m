@@ -3,7 +3,10 @@
 
 % Clear the workspace and the screen
 sca; close all; clearvars;
-addpath('/Users/mehdisenoussi/Dropbox/postphd/decatsy/code/eyetrack-tools-master/')
+%addpath('/Users/mehdisenoussi/Dropbox/postphd/decatsy/code/eyetrack-tools-master/')
+addpath(genpath('C:\Laura\eyetrack-tools-master'))
+
+
 
 Screen('Preference','SkipSyncTests', 1) 
 % Here we call some default settings for setting up Psychtoolbox
@@ -63,9 +66,9 @@ eyeDataDir = 'eyedata';
 
 %% EEG and Eyetracker setup
 % is the EEG connected?
-mainvar.EEG = 0;
+mainvar.EEG = 1;
 % is eyelink connected?
-mainvar.EL = 0;
+mainvar.EL = 1;
 
 if mainvar.EEG
     [object, port, portstatus] = initializePort(255);
@@ -148,7 +151,7 @@ stims.gabLocR = [(xCenter+coordclg(1))-gaborDimPix/2 (xCenter+coordclg(1))+gabor
 
 %% Experiment variables (e.g. timing etc.)
 
-n_trials=2;
+n_trials=50;
 
 staircase=true;
 % reversals holds trial numbers when a reversal in the staircase occured
