@@ -1,12 +1,11 @@
 % Core script of DECATSY experiment
+
 % Sets up Screen, EEG, Eyetracker, experimental design and stim display
 
 % Clear the workspace and the screen
 sca; close all; clearvars;
 %addpath('/Users/mehdisenoussi/Dropbox/postphd/decatsy/code/eyetrack-tools-master/')
-addpath(genpath('C:\Laura\eyetrack-tools-master'))
-
-
+%addpath(genpath('C:\Laura\eyetrack-tools-master'))
 
 Screen('Preference','SkipSyncTests', 1) 
 % Here we call some default settings for setting up Psychtoolbox
@@ -153,7 +152,7 @@ stims.gabLocR = [(xCenter+coordclg(1))-gaborDimPix/2 (xCenter+coordclg(1))+gabor
 
 n_trials=50;
 
-staircase=true;
+staircase=false;
 % reversals holds trial numbers when a reversal in the staircase occured
 if staircase
     reversals=zeros(2,n_trials);
@@ -199,7 +198,7 @@ timing.ITIs=.900:.1:1.900;
 % trials.verhor=[repmat([0 90],1,ceil(n_trials/2)); repmat([0 90],1,ceil(n_trials/2))];
 trials.verhor=repmat([0 90]',1,n_trials);
 % tilt is randomly the same on the two gratings
-trials.tiltsLvl=[12 12]; trials.mintiltsLvl=.5; trials.maxtiltsLvl=30;
+trials.tiltsLvl=[3 3]; trials.mintiltsLvl=.5; trials.maxtiltsLvl=30;
 trials.tiltSteps=[3 3]; trials.minTiltStep=.2;
 trials.tiltDir=[Shuffle(repmat([-1 1],1,n_trials));...
     Shuffle(repmat([-1 1],1,n_trials))]; %[-ones(1,n_trials/2) ones(1,n_trials/2)];
