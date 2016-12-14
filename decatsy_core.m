@@ -1,5 +1,7 @@
 % Core script of DECATSY experiment
 
+% Laura git is cool.
+
 % Sets up Screen, EEG, Eyetracker, experimental design and stim display
 
 % Clear the workspace and the screen
