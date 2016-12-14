@@ -22,7 +22,7 @@ grey = white / 2; diffWandG = abs(white - grey);
 
 
 % Open an on screen window
-[window, windowRect] = PsychImaging('OpenWindow', screenNumber, grey, []); %use [] for full screen or [0,0,800,400] for a smaller screen
+[window, windowRect] = PsychImaging('OpenWindow', screenNumber, grey, [0 0 800 400]); %use [] for full screen or [0,0,800,400] for a smaller screen
 % [window, windowRect] = Screen('OpenWindow',screenNumber, grey, [0,0,800,400]);
 
 % Get the size of the on screen window in pixels and cm
@@ -54,10 +54,10 @@ display.fgColor = display.bkColor*2;
 
 %% File settings
 
-s_ind=1; dateLaunch=datestr(now, 30); 
+s_ind=1; dateLaunch=datestr(now, 30); block=1;
 filename=['Results/Subj-' num2str(s_ind), '-' dateLaunch '.txt'];
 fid=fopen(filename,'w');
-fprintf(fid,'s_ind\tsession\tphase\tcondition\ttrial\trespTime\trespKey\tcorrectResp\tcorrectSide\tcorrectTilt\tcue\tprecue\tvalidity\ttiltLvlVert\ttiltLvlHori\ttiltStepVert\ttiltStepHori\tgratingOriLeft\tgratingOriRight\n');
+fprintf(fid,'s_ind\tsession\tphase\tcondition\tblock\ttrial\trespTime\trespKey\tcorrectResp\tcorrectSide\tcorrectTilt\tcue\tprecue\tvalidity\ttiltLvlVert\ttiltLvlHori\ttiltStepVert\ttiltStepHori\tgratingOriLeft\tgratingOriRight\n');
 
 eyeDataDir = 'eyedata';
 
@@ -442,7 +442,7 @@ while triali <= n_trials
         DrawFormattedText(window,breakFixTxt,'center', screenYpixels * 0.25, [1 1 1]);
         Screen('Flip', window); WaitSecs(1);
         fprintf(fid, '%i\t%s\t%s\t%i\t%s\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\n',...
-        s_ind, session, expPhase, triali,'fixBreak',-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5);
+        s_ind, session, expPhase, triali,'fixBreak',-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5);
     else
         Screen('DrawLines', window, allCoords,lineWidthPix,[1 1 1],[xCenter yCenter],0);
         Screen('Flip', window);
@@ -450,16 +450,16 @@ while triali <= n_trials
             % s_ind-session-phase-condition-trial-respTime-respKey-correctSide
             % correctResp-cue-precue-validity-correctSide-correctTilt-correctResp
             % -tiltLvlHori-tiltLvlVert-tiltStepHori-tiltStepVert-gratingOriL-gratingOriR
-            fprintf(fid,'%i\t%s\t%s\t%s\t%i\t%.4f\t%s\t%i\t%i\t%i\t%i\t%i\t%i\t%i\t%i\t%d\t%d\t%d\t%d\t%.2f\t%.2f\n\n',...
-                s_ind, session, expPhase, condition, triali, respTrials(triali).respTime,...
+            fprintf(fid,'%i\t%s\t%s\t%s\t%i\t%i\t%.4f\t%s\t%i\t%i\t%i\t%i\t%i\t%i\t%i\t%i\t%d\t%d\t%d\t%d\t%.2f\t%.2f\n\n',...
+                s_ind, session, expPhase, condition, block, triali, respTrials(triali).respTime,...
                 respTrials(triali).respKey,  respTrials(triali).correctResp,...
                 respTrials(triali).correctSide, respTrials(triali).correctTilt,...
                 respTrials(triali).cue, respTrials(triali).precue, respTrials(triali).validity,...
                 trials.tiltsLvl, trials.tiltSteps, gratingOri);
             fprintf(fid,'\n');
         else
-            fprintf(fid, '%i\t%s\t%s\t%i\t%s\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\n',...
-                s_ind, session, expPhase, triali,'notResponded',-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5);
+            fprintf(fid, '%i\t%s\t%s\t%i\t%i\t%s\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\n',...
+                s_ind, session, expPhase, block, triali,'notResponded',-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5);
             Beeper('low');
         end
     
