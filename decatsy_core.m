@@ -5,11 +5,11 @@
 function [tiltLvls] = decatsy_core(s_ind, subjGroup, session, condition, expPhase, block,...
     mainvar, n_trials, cueStimAsso, leftResps, rightResps, responseKeys,...
     stims, timing, trials, staircase, tiltLvls, tiltSteps, window, pixindeg,...
-    diffWandG, grey, xCenter, yCenter, ifi, screenYpixels, stimFeat)
+    diffWandG, grey, xCenter, yCenter, ifi, screenYpixels, stimFeat, el, rad,object, port)
     
     %% Setting up log file
     dateLaunch=datestr(now, 30);
-    filename=sprintf('Results/subj%i/Subj-%i-%s.txt',s_ind,dateLaunch);
+    filename=sprintf('./Results/subj%i/Subj-%i-%s.txt',s_ind,dateLaunch);
     fid=fopen(filename,'w');
     fprintf(fid,'s_ind\tsubjGroup\tsession\tphase\tcondition\tblock\ttrial\trespTime\trespKey\tcorrectResp\tcorrectSide\tcorrectTilt\tprecue\tcue\tvalidity\ttiltLvlVert\ttiltLvlHori\ttiltStepVert\ttiltStepHori\tgratingOriLeft\tgratingOriRight\n');
 
@@ -31,7 +31,7 @@ function [tiltLvls] = decatsy_core(s_ind, subjGroup, session, condition, expPhas
     filterMode = 0; %Nearest neighb for Screen('Drawlines')
 
     % Define central cross
-    fixSizeDeg=.2; fixCrossDimPix = round(fixSizeDeg/2/pixindeg);
+    fixSizeDeg=.3; fixCrossDimPix = round(fixSizeDeg/2/pixindeg);
     xCoords = [-fixCrossDimPix fixCrossDimPix-1 fixCrossDimPix-1 -fixCrossDimPix];
     yCoords = [-fixCrossDimPix fixCrossDimPix -fixCrossDimPix fixCrossDimPix];
     allCoords = [xCoords; yCoords]; lineWidthPix = 2;
@@ -170,11 +170,6 @@ function [tiltLvls] = decatsy_core(s_ind, subjGroup, session, condition, expPhas
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             % Stimuli: fixation cross, cue and stimuli
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            %%%%%%%%%%%%%%%%%%%%%%%%
-            % NEED TO CHANGE THE tiltslvl because now its interpreting the 1
-            % and 2 of the array as the left and right and actually its the hori and vert
-            % DONE - NEED TO CHECK-CHECK
-            %%%%%%%%%%%%%%%%%%%%%%%%
             firstPass=1; tempT=GetSecs;
             while GetSecs < (tempT+timing.stimPres-(ifi/2))
                 if trials.feature(1,triali)
@@ -311,20 +306,21 @@ function [tiltLvls] = decatsy_core(s_ind, subjGroup, session, condition, expPhas
                     do_staircase(targetFeat, stimFeat, tiltLvls, tiltSteps, respTrials,...
                     triali, tiltChanges, lastTiltChange, reversals, minTiltsLvl, maxTiltsLvl);
             end
-        end
+            
 
-
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        % ITI
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        firstPass=1; tempT=GetSecs;
-        while GetSecs < (tempT+trials.ITI(triali)-(ifi/2)) && fixation
-            if firstPass
-                if mainvar.EEG; sendEventCode(object,port, mainvar.eITI); end
-                if mainvar.EL; Eyelink('Message', 'START_ITI'); end
-                firstPass=0;
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            % ITI (only if no fixBreak)
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            firstPass=1; tempT=GetSecs;
+            while GetSecs < (tempT+trials.ITI(triali)-(ifi/2)) && fixation
+                if firstPass
+                    if mainvar.EEG; sendEventCode(object,port, mainvar.eITI); end
+                    if mainvar.EL; Eyelink('Message', 'START_ITI'); end
+                    firstPass=0;
+                end
             end
         end
+
         triali=triali+1;
     end
 

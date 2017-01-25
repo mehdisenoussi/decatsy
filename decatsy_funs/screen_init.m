@@ -14,7 +14,7 @@ function [window, pixindeg, diffWandG, grey, xCenter, yCenter, ifi, screenYpixel
 
     % Load normalized gamma table
     if useScreenCalib
-        calib_filename='/Users/mehdisenoussi/Dropbox/postphd/decatsy/code/scripts_laura/eyetracker_working/gammaCalib_12122016.mat';
+        calib_filename='gammaCalib_12122016.mat';
         load(calib_filename); % this and following code necessary to linearize the monitor was added on 12/12/2016
         Screen('LoadNormalizedGammaTable',screenNumber,CLUT,[]);
     end

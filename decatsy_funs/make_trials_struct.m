@@ -3,7 +3,7 @@ function trials = make_trials_struct(n_trials, cueOrientations, validRatio, timi
 
     trials.feature=repmat([0 90]',1,n_trials);
     % tilt is randomly the same on the two gratings
-    trials.tiltDir=[Shuffle(repmat([-1 1],1,(n_trials/2)));...
+    trials.tiltDir=[Shuffle(repmat([-1 1],1, ceil((n_trials/2))));...
         Shuffle(repmat([-1 1],1,ceil(n_trials/2)))];
     trials.ITI=timing.ITIs(randi(11,1,n_trials));
     
