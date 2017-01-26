@@ -28,7 +28,6 @@ function [condition, cueStimAsso, leftResps, rightResps, responseKeys,...
                     cueStimAsso=[{'hori'}; {'vert'}];
                 case 'spatial'
                     cueStimAsso=[{'left'}; {'right'}];
-                    fprintf('WE PASSED HERE :)');
             end
     end
 

@@ -4,12 +4,12 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 function [tiltLvls, tiltSteps, tiltChanges, lastTiltChange, reversals] =...
-    do_staircase(targetFeat, stimFeat, tiltLvls, tiltSteps, respTrials,...
+    do_staircase(stimFeat, tiltLvls, tiltSteps, respTrials,...
     triali, tiltChanges, lastTiltChange, reversals, minTiltsLvl, maxTiltsLvl)
 
 % if it is not the first trial, if we are doing a staircase and if
 % the observer responded in this trial        
-if strcmp(targetFeat, stimFeat(1)); targetFeatInd=1;
+if strcmp(respTrials(triali).targetFeat, stimFeat(1)); targetFeatInd=1;
 else targetFeatInd=2; end
 tilt=tiltLvls(targetFeatInd);
 
