@@ -16,12 +16,13 @@ function [tiltLvls] = decatsy_core(s_ind, subjGroup, session, condition, expPhas
 
     %% Fixation and cue
     % Define a squared matrix of zeros // if in phase train3 make circular cue 
-    sizecue=round(.7/pixindeg);
+    sizecue=round(.7/pixindeg); halfsc=round(sizecue/2.);
     baseRect = [0 0 sizecue sizecue];
     squa = zeros(sizecue,sizecue);
     if strcmp(expPhase,'train3')
-        [x, y] = meshgrid(sizecue, sizecue);
-        circleMat = sqrt((x .^ 2) + (y .^ 2));
+        [x, y] = meshgrid(-halfsc:halfsc, -halfsc:halfsc);
+        circleMat = sqrt((x .^ 2) + (y .^ 2)); outerVal=circleMat(halfsc,end);
+        circleMat(circleMat<=outerVal)=0; circleMat(circleMat>outerVal)=grey;
         precueTexture=Screen('MakeTexture', window, circleMat);
     else precueTexture=Screen('MakeTexture', window, squa);
     end

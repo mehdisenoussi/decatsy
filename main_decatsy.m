@@ -5,7 +5,7 @@
 % them (9) or none of them (launches default parameters).
 %
 % parameters : s_ind (1-n), subjGroup (1-4), session (1-2),
-% expPhase (train1-4 or main), block (1-n), fullscreen (0-1),
+% expPhase (train1-4 or main), eblock (1-n), fullscreen (0-1),
 % useScreenCalib (0-1), doEEG (0-1), doEL (0-1)
 
 
@@ -116,7 +116,7 @@ function [] = main_decatsy(s_ind, subjGroup, session, expPhase, block,...
         case 'train3' % phase 3 of training: staircase, main task/real conditions
             timing.beginTrial=.600; timing.precue=.120; timing.ISI1=2; timing.stimPres=.050;
             timing.ISI2=.900; timing.responseTime=.800; timing.ITIs=.400:.1:1.400;
-            n_trials=15; staircase=1;
+            n_trials=2; staircase=1;
         case {'train4', 'main'} % phase 4 of training and main task: real conditions with staircased tilt
             timing.beginTrial=.600; timing.precue=.120; timing.ISI1=2; timing.stimPres=.050;
             timing.ISI2=.900; timing.responseTime=.800; timing.ITIs=.400:.1:1.400;
