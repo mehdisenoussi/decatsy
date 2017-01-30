@@ -110,7 +110,8 @@ function [tiltLvls] = decatsy_core(s_ind, subjGroup, session, condition, expPhas
                     fixation = rd_eyeLink('fixcheck', window, {xCenter, yCenter, rad});
                     if ~fixation
                         fprintf('\nBROKE FIXATION! (trial %i)',triali)
-                        Beeper('low'); sendEventCode(object,port, mainvar.eFixBreak);
+                        Beeper('low');
+                        if mainvar.EEG; sendEventCode(object,port, mainvar.eFixBreak); end
                         break;
                     end                
                 end
@@ -136,7 +137,8 @@ function [tiltLvls] = decatsy_core(s_ind, subjGroup, session, condition, expPhas
                     fixation = rd_eyeLink('fixcheck', window, {xCenter, yCenter, rad});
                     if ~fixation
                         fprintf('\nBROKE FIXATION! (trial %i)',triali)
-                        Beeper('low'); sendEventCode(object,port, mainvar.eFixBreak);
+                        Beeper('low');
+                        if mainvar.EEG; sendEventCode(object,port, mainvar.eFixBreak); end
                         break;
                     end
                 end
@@ -161,7 +163,8 @@ function [tiltLvls] = decatsy_core(s_ind, subjGroup, session, condition, expPhas
                     fixation = rd_eyeLink('fixcheck', window, {xCenter, yCenter, rad});
                     if ~fixation
                         fprintf('\nBROKE FIXATION! (trial %i)',triali)
-                        Beeper('low'); sendEventCode(object,port, mainvar.eFixBreak);
+                        Beeper('low');
+                        if mainvar.EEG; sendEventCode(object,port, mainvar.eFixBreak); end
                         break;
                     end
                 end
@@ -197,7 +200,8 @@ function [tiltLvls] = decatsy_core(s_ind, subjGroup, session, condition, expPhas
                     fixation = rd_eyeLink('fixcheck', window, {xCenter, yCenter, rad});
                     if ~fixation
                         fprintf('\nBROKE FIXATION! (trial %i)',triali)
-                        Beeper('low'); sendEventCode(object,port, mainvar.eFixBreak);
+                        Beeper('low');
+                        if mainvar.EEG; sendEventCode(object,port, mainvar.eFixBreak); end
                         break;
                     end
                 end
@@ -217,7 +221,8 @@ function [tiltLvls] = decatsy_core(s_ind, subjGroup, session, condition, expPhas
                     fixation = rd_eyeLink('fixcheck', window, {xCenter, yCenter, rad});
                     if ~fixation
                         fprintf('\nBROKE FIXATION! (trial %i)',triali)
-                        Beeper('low'); sendEventCode(object,port, mainvar.eFixBreak);
+                        Beeper('low');
+                        if mainvar.EEG; sendEventCode(object,port, mainvar.eFixBreak); end
                         break;
                     end
                 end
