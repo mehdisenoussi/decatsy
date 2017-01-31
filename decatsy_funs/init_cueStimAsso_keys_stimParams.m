@@ -48,6 +48,6 @@ function [condition, cueStimAsso, leftResps, rightResps, responseKeys,...
     else validRatio=1; end
 
     if strcmp(expPhase,'train1') || strcmp(expPhase,'train2'); stims.contrast=1;
-    else stims.contrast=.15; end
+    else stims.contrast=.2; end
 
 end
