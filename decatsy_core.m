@@ -275,9 +275,9 @@ function [tiltLvls] = decatsy_core(s_ind, subjGroup, session, condition, expPhas
             breakFixTxt=cat(2,'Please fixate.');
             DrawFormattedText(window,breakFixTxt,'center', screenYpixels * 0.25, [1 1 1]);
             Screen('Flip', window);
-            fprintf(fid, '%i\t%i\t%i\t%s\t%i\t%s\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\n',...
+            fprintf(fid, '%i\t%i\t%i\t%s\t%s\t%i\t%i\t%s\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\n',...
                 s_ind, subjGroup, session, expPhase, condition, block, triali,...
-                'fixBreak',-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5);
+                'fixBreak',-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5);
             % If subject broke fixation the trial will be re-presented at
             % the end of the trial sequence
             n_trials=n_trials+1; trials=append_trial(trials,triali);
@@ -286,9 +286,9 @@ function [tiltLvls] = decatsy_core(s_ind, subjGroup, session, condition, expPhas
             Screen('DrawLines', window, allCoords,lineWidthPix,[1 1 1],[xCenter yCenter],0);
             Screen('Flip', window);
             if responded
-                % s_ind-subjGroup-session-phase-condition-trial-respTime-respKey-correctSide
-                % correctResp-precue-cue-validity-correctSide-correctTilt-correctResp
-                % -tiltLvlHori-tiltLvlVert-tiltStepHori-tiltStepVert-gratingOriL-gratingOriR
+                % s_ind-subjGroup-session-phase-condition-block-triali-respTime-respKey
+                % correctResp-correctSide-correctTilt-precue-cue-validity
+                % tiltLvlHori-tiltLvlVert-tiltStepHori-tiltStepVert-gratingOriL-gratingOriR
                 fprintf(fid, ['%i\t%i\t%i\t%s\t%s\t%i\t%i\t%.4f\t%s\t%i\t%i\t%i\t' ... % 12
                             '%i\t%i\t%i\t%i\t%i\t%d\t%d\t%d\t%d\n'],...  % 9
                     s_ind, subjGroup, session, expPhase, condition, block, triali,...
