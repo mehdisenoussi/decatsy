@@ -3,9 +3,9 @@
 % variables that might have change 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function [tiltLvls, tiltSteps, tiltChanges, lastTiltChange, reversals] =...
+function [tiltLvls, tiltSteps, tiltChanges, lastTiltChangeSign, reversals] =...
     do_staircase(stimFeat, tiltLvls, tiltSteps, respTrials,...
-    triali, tiltChanges, lastTiltChange, reversals, minTiltsLvl, maxTiltsLvl)
+    triali, tiltChanges, lastTiltChangeSign, reversals, minTiltsLvl, maxTiltsLvl)
 
 % if it is not the first trial, if we are doing a staircase and if
 % the observer responded in this trial        
@@ -18,13 +18,16 @@ if not(sum(reversals(targetFeatInd,:)))
     if respTrials(triali).correctResp; tiltSign=-1;
     else tiltSign=1; end
     tilt=tilt+(tiltSign*tiltSteps(targetFeatInd));
-    tiltLvls(targetFeatInd)=tilt;
-    tiltChanges(targetFeatInd, triali)=tiltSign;
-    if tiltChanges(targetFeatInd,triali)==-lastTiltChange(targetFeatInd)
-        reversals(targetFeatInd,triali)=1;
-        tiltSteps(targetFeatInd)=tiltSteps(targetFeatInd)/2.;
+    if tilt>minTiltsLvl && tilt<maxTiltsLvl
+        tiltLvls(targetFeatInd)=tilt;
+        tiltChanges(targetFeatInd, triali)=tiltSign;
+        if tiltChanges(targetFeatInd,triali)==-lastTiltChangeSign(targetFeatInd)
+            reversals(targetFeatInd,triali)=1;
+            tiltSteps(targetFeatInd)=tiltSteps(targetFeatInd)/2.;
+        end
+        lastTiltChangeSign(targetFeatInd)=tiltSign;
     end
-    lastTiltChange(targetFeatInd)=tiltSign;
+    
 else
     tiltSign=0;
     % not 1st reversal: one-up-two-down
@@ -42,7 +45,7 @@ else
         tiltChanges(targetFeatInd, triali) = tiltSign;
 
         % if there is a reversal in this feature's tiltChange
-        if tiltSign==-lastTiltChange(targetFeatInd)
+        if tiltSign==-lastTiltChangeSign(targetFeatInd)
             reversals(targetFeatInd,triali)=1;
             % takes care of the Levitt rule
             if mod(length(find(reversals(targetFeatInd,:)~=0)),2)
@@ -55,7 +58,7 @@ else
 %                         end
             end
         end
-        if tiltSign; lastTiltChange(targetFeatInd)=tiltSign; end
+        if tiltSign; lastTiltChangeSign(targetFeatInd)=tiltSign; end
     end
 end
 
@@ -74,11 +77,11 @@ end
 %                 tilt=tilt+(tiltSign*tiltSteps(targetFeatInd));
 %                 tiltLvls(targetFeatInd)=tilt;
 %                 tiltChanges(targetFeatInd, triali)=tiltSign;
-%                 if tiltChanges(targetFeatInd,triali)==-lastTiltChange(targetFeatInd)
+%                 if tiltChanges(targetFeatInd,triali)==-lastTiltChangeSign(targetFeatInd)
 %                     reversals(targetFeatInd,triali)=1;
 %                     tiltSteps(targetFeatInd)=tiltSteps(targetFeatInd)/2.;
 %                 end
-%                 lastTiltChange(targetFeatInd)=tiltSign;
+%                 lastTiltChangeSign(targetFeatInd)=tiltSign;
 %             else
 %                 tiltSign=0;
 %                 % not 1st reversal: one-up-two-down
@@ -96,7 +99,7 @@ end
 %                     tiltChanges(targetFeatInd, triali) = tiltSign;
 % 
 %                     % if there is a reversal in this feature's tiltChange
-%                     if tiltSign==-lastTiltChange(targetFeatInd)
+%                     if tiltSign==-lastTiltChangeSign(targetFeatInd)
 %                         reversals(targetFeatInd,triali)=1;
 %                         % takes care of the Levitt rule
 %                         if mod(length(find(reversals(targetFeatInd,:)~=0)),2)
@@ -109,7 +112,7 @@ end
 %     %                         end
 %                         end
 %                     end
-%                     if tiltSign; lastTiltChange(targetFeatInd)=tiltSign; end
+%                     if tiltSign; lastTiltChangeSign(targetFeatInd)=tiltSign; end
 %                 end
 %             end
 %         end

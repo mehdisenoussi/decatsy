@@ -61,7 +61,7 @@ function [tiltLvls] = decatsy_core(s_ind, subjGroup, session, condition, expPhas
         % reversals holds trial numbers when a reversal in the staircase occured
         reversals=zeros(2,n_trials);
         tiltChanges=zeros(2,n_trials);
-        lastTiltChange=[0 0];
+        lastTiltChangeSign=[0 0];
     end
     
     %% Presentation of the stimuli
@@ -309,9 +309,9 @@ function [tiltLvls] = decatsy_core(s_ind, subjGroup, session, condition, expPhas
 
             % Staircase
             if staircase && triali>1 && responded
-                [tiltLvls, tiltSteps, tiltChanges, lastTiltChange, reversals] =...
+                [tiltLvls, tiltSteps, tiltChanges, lastTiltChangeSign, reversals] =...
                     do_staircase(stimFeat, tiltLvls, tiltSteps, respTrials,...
-                    triali, tiltChanges, lastTiltChange, reversals, minTiltsLvl, maxTiltsLvl);
+                    triali, tiltChanges, lastTiltChangeSign, reversals, minTiltsLvl, maxTiltsLvl);
             end
             
 
