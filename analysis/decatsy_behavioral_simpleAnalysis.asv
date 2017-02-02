@@ -115,7 +115,7 @@ function []=decatsy_behavioral_simpleAnalysis(subject_ind, experiment_phase)
     dprime_invalid=norminv(invalhits)-norminv(invalfas);
 
     %% Plots
-
+keyboard
     switch experiment_phase
         case {'train1', 'train2', 'train4', 'main'}
             % Plot the distribution of reaction times
@@ -123,15 +123,13 @@ function []=decatsy_behavioral_simpleAnalysis(subject_ind, experiment_phase)
             subplot(1,2,1); hold on;
             h1=histogram(respTime(logical(cue)), 5, 'Normalization', 'probability','FaceColor',[0 0 .8]);
             h2=histogram(respTime(~logical(cue)), 5, 'Normalization', 'probability','FaceColor',[.8 0 0]);
-            plot([median(respTime(logical(cue))) median(respTime(logical(cue)))],[0 0.7], 'color',[0 0 .8])
-            plot([median(respTime(~logical(cue))) median(respTime(~logical(cue)))],[0 0.7], 'color',[.8 0 0])
-            xlim([0 1]); xlabel('Reaction times (ms)'); ylabel('Probability');
+            xlim([-.05 .85]); xlabel('Reaction times (ms)'); ylabel('Probability');
             switch char(expPhase(2))
                 case {'train1', 'train2', 'train3'}
-                    title(['Histogram ' expPhase(2)]);
+                    title(['Phase' expPhase(2)]);
                 case {'train4', 'main'}
-                    title(sprintf('Histogram %s', expPhase{2}));
-                    legend('valid','invalid','Location','NorthWest')
+                    title(sprintf(['Phase %s'], expPhase{2}));
+                    legend('valid','invalid')
             end
 
             % Plot the d-prime of each condition
