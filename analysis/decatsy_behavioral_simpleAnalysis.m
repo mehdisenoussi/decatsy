@@ -29,6 +29,7 @@ function []=decatsy_behavioral_simpleAnalysis(subject_ind, experiment_phase)
         end
     end
     processed_file=listing(file_count).name;
+    fprintf(['\n\nfile processed: ' processed_file '\n\n']);
 
     correctResp=str2double(correctResp(2:end)); cue=str2double(cue(2:end));
     precue=str2double(precue(2:end)); respTime=str2double(respTime(2:end));
