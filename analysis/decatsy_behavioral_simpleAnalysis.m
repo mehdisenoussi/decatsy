@@ -113,9 +113,11 @@ function []=decatsy_behavioral_simpleAnalysis(subject_ind, experiment_phase)
 
     dprime_valid=norminv(valhits)-norminv(valfas);
     dprime_invalid=norminv(invalhits)-norminv(invalfas);
-
+    
+    disp(mean(correctResp))
+    
     %% Plots
-
+    
     switch experiment_phase
         case {'train1', 'train2', 'train4', 'main'}
             % Plot the distribution of reaction times
