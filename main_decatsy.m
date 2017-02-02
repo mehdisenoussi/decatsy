@@ -1,13 +1,28 @@
-% This script launches the main experiment script
+% This script launches the decatsy experiment
 % Sets up Screen, EEG, Eyetracker, experimental design and stim display
 %
 % There are 2 ways to specify the parameters: either specify all of
 % them (9) or none of them (launches default parameters).
 %
-% parameters : s_ind (1-n), subjGroup (1-4), session (1-2),
-% expPhase (train1-4 or main), eblock (1-n), fullscreen (0-1),
-% useScreenCalib (0-1), doEEG (0-1), doEL (0-1)
-
+% main_decatsy(s_ind,subjGroup,session,expPhase,block,fullscreen,useScreenCalib,doEEG,doEL)
+% 
+% Parameters: 
+%      s_ind: 1-n
+%      subjGroup: 1-4
+%      session: 1-2
+%      expPhase: 'train1' or 'train2' or 'train3' or 'main'
+%      block: 1-n 
+%      fullscreen: 0-1
+%      useScreenCalib: 0-1 
+%      doEEG: 0-1 
+%      doEL: 0-1
+%
+% You should run in order:
+%     'train1', block = 1: Learn the association
+%     'train2', block = 1: Do the experiment at a SLOW paste and at 100% contrast
+%     'train2', block = 2: Do the experiment at a FAST paste and at 100% contrast
+%     'train3', block = 1: Do the experiment at a FAST paste, at 20% contrast and with the tilt changing
+%     'train4', block = 1: Do the experiment at a FAST paste, at 20% contrast and with the tilt fixed : SAME AS IN THE EEG EXPERIMENT
 
 function [] = main_decatsy(s_ind, subjGroup, session, expPhase, block,...
     fullscreen, useScreenCalib, doEEG, doEL)
@@ -109,25 +124,24 @@ function [] = main_decatsy(s_ind, subjGroup, session, expPhase, block,...
             timing.ISI2=.00; timing.responseTime=2.0; timing.ITIs=.400:.1:1.400;
             n_trials=30; tiltLvls=[0 0];
         case 'train2' % phase 2 of training: easy settings, learning trial event sequence and keys
-            % Slow timing
-            timing.beginTrial=.600; timing.precue=.250; timing.ISI1=2;
-            timing.stimPres=.500; timing.ISI2=.900; timing.responseTime=.800;timing.ITIs=.400:.1:1.400;
-            % Fast timing
-            %timing.beginTrial=.600; timing.precue=.120; timing.ISI1=2; timing.stimPres=.060;
-            %timing.ISI2=.900; timing.responseTime=1.000; timing.ITIs=.400:.1:1.400;
-            
+            if block == 1 % Slow timing
+                timing.beginTrial=.600; timing.precue=.250; timing.ISI1=2;
+                timing.stimPres=.500; timing.ISI2=.900; timing.responseTime=.800;timing.ITIs=.400:.1:1.400;
+            elseif block == 2 % Fast timing
+                timing.beginTrial=.600; timing.precue=.120; timing.ISI1=2; timing.stimPres=.060;
+                timing.ISI2=.900; timing.responseTime=1.000; timing.ITIs=.400:.1:1.400;
+            end
             n_trials=30;
         case 'train3' % phase 3 of training: staircase, main task/real conditions
             timing.beginTrial=.600; timing.precue=.120; timing.ISI1=2; timing.stimPres=.060;
             timing.ISI2=.900; timing.responseTime=1.000; timing.ITIs=.400:.1:1.400;
-            n_trials=100; staircase=1;
+            n_trials=140; staircase=1;
         case {'train4', 'main'} % phase 4 of training and main task: real conditions with staircased tilt
             timing.beginTrial=.600; timing.precue=.120; timing.ISI1=2; timing.stimPres=.060;
             timing.ISI2=.900; timing.responseTime=1.000; timing.ITIs=.400:.1:1.400; 
-            n_trials=60;
+            n_trials=80;
             load(sprintf('%s/subj%i_cond_%s_staircase_tiltlvls.mat',subjFolder,s_ind,condition));
     end
-
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
