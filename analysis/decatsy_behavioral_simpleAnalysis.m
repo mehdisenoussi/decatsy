@@ -1,34 +1,35 @@
 %% Simple script for simple behavioral analysis and monitoring of observer's performances
-% study_dir='/Users/mehdisenoussi/decatsy/';
-% results_dir=[study_dir 'behav_data_and_scripts/Results/'];
 
-% [s_ind, session, expPhase, condition, block, triali, respTime, respKey,...
-%     correctResp, correctSide, correctTilt, cue, precue, validity,...
-%     tiltsLvlV, tiltsLvlH, tiltStepsV, tiltStepsH, gratingOriL, gratingOriR] = ...
-%     textread([results_dir 'Subj-1-all.txt'],...
-%     '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s');
-
-%study_dir='/Users/mehdisenoussi/Dropbox/postphd/decatsy/code/';
-
-function []=decatsy_behavioral_simpleAnalysis(subject_ind, experiment_phase)
-    study_dir='../'; subject_ind=num2str(subject_ind);
+function []=decatsy_behavioral_simpleAnalysis(subject_ind, arg2)
+    study_dir='./'; subject_ind=num2str(subject_ind);
     results_dir=[study_dir 'Results/subj' subject_ind '/'];
-    listing = dir([results_dir '*.txt']); file_found=0; file_count=1;
-    if isempty(listing)
-        fprintf('NO FILES IN DIRECTORY'); return;
-    else
-        while ~file_found
-            [s_ind, subjGroup, session, expPhase, condition, block, triali, respTime,...
+    if length(arg2)<=6
+        experiment_phase=arg2;
+        listing = dir([results_dir '*.txt']); file_found=0; file_count=1;
+        if isempty(listing)
+            fprintf('NO FILES IN DIRECTORY'); return;
+        else
+            while ~file_found
+                [s_ind, subjGroup, session, expPhase, condition, block, triali, respTime,...
                 respKey, correctResp, correctSide, correctTilt, cue, precue, validity,...
                 tiltsLvlV, tiltsLvlH, tiltStepsV, tiltStepsH, gratingOriL, gratingOriR] = ...
                 textread([results_dir listing(file_count).name],...%'Subj-50-0170201T140609.txt'],...
                 '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s');
-            file_found=strcmp(experiment_phase, expPhase(2));
-            if ~file_found && file_count<length(listing); file_count=file_count+1;
-            else break; end
+                file_found=strcmp(experiment_phase, expPhase(2));
+                if ~file_found && file_count<length(listing); file_count=file_count+1;
+                else break; end
+            end
+            processed_file=listing(file_count).name;
         end
+    else
+        processed_file=arg2;
+        [s_ind, subjGroup, session, expPhase, condition, block, triali, respTime,...
+        respKey, correctResp, correctSide, correctTilt, cue, precue, validity,...
+        tiltsLvlV, tiltsLvlH, tiltStepsV, tiltStepsH, gratingOriL, gratingOriR] = ...
+        textread([results_dir processed_file],...
+        '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s');
+        experiment_phase=char(expPhase(2));
     end
-    processed_file=listing(file_count).name;
     fprintf(['\n\nfile processed: ' processed_file '\n\n']);
 
     correctResp=str2double(correctResp(2:end)); cue=str2double(cue(2:end));
@@ -50,8 +51,7 @@ function []=decatsy_behavioral_simpleAnalysis(subject_ind, experiment_phase)
     gratingOriL=gratingOriL(rej_behav_trials);
 
     hits=zeros(2,n_trials); falsealarms=zeros(2,n_trials);
-    n_sig=[0 0]; n_nsig=[0 0];
-    misses=zeros(1,n_trials);correctrej=zeros(1,n_trials);
+    n_sig=[0 0]; n_nsig=[0 0]; misses=zeros(1,n_trials);
     if ~strcmp(expPhase(2), 'train1')
         leftResps=[{'s'} {'d'}]; rightResps=[{'k'} {'l'}];
         valid_trials_ind=find(validity==1); invalid_trials=find(validity==0);
@@ -114,32 +114,30 @@ function []=decatsy_behavioral_simpleAnalysis(subject_ind, experiment_phase)
     dprime_valid=norminv(valhits)-norminv(valfas);
     dprime_invalid=norminv(invalhits)-norminv(invalfas);
     
-    disp(mean(correctResp))
-    
     %% Plots
     
     switch experiment_phase
         case {'train1', 'train2', 'train4', 'main'}
             % Plot the distribution of reaction times
             figure();
-            subplot(1,2,1); hold on;
-            h1=histogram(respTime(logical(cue)), 5, 'Normalization', 'probability','FaceColor',[0 0 .8]);
-            h2=histogram(respTime(~logical(cue)), 5, 'Normalization', 'probability','FaceColor',[.8 0 0]);
-            plot([median(respTime(logical(cue))) median(respTime(logical(cue)))],[0 0.7], 'color',[0 0 .8])
-            plot([median(respTime(~logical(cue))) median(respTime(~logical(cue)))],[0 0.7], 'color',[.8 0 0])
-            xlim([0 1]); xlabel('Reaction times (ms)'); ylabel('Probability');
+            subplot(1,2,1); hold on; suptitle(sprintf('Data for subject %s - phase %s', subject_ind, expPhase{2}));
+            h1=histogram(respTime(logical(validity)), 5, 'Normalization', 'probability','FaceColor',[0 0 .8]);
+            h2=histogram(respTime(~logical(validity)), 5, 'Normalization', 'probability','FaceColor',[.8 0 0]);
+            plot([median(respTime(logical(validity))) median(respTime(logical(validity)))],[0 0.7], 'color',[0 0 .8])
+            plot([median(respTime(~logical(validity))) median(respTime(~logical(validity)))],[0 0.7], 'color',[.8 0 0])
+            xlim([-.05 .85]); xlabel('Reaction times (ms)'); ylabel('Probability');
             switch char(expPhase(2))
                 case {'train1', 'train2', 'train3'}
-                    title(['Histogram ' expPhase(2)]);
+                    title(['Histogram of reaction times']);
                 case {'train4', 'main'}
-                    title(sprintf('Histogram %s', expPhase{2}));
+                    title(sprintf('Histogram of reaction times\nvalid versus invalid condition'));
                     legend('valid','invalid','Location','NorthWest')
             end
-
+            
             % Plot the d-prime of each condition
             subplot(1,2,2); y=[dprime_valid dprime_invalid]; hold on;
-            bar(1,y(1),.5,'FaceColor',[0 0 .8]);
-            bar(2,y(2),.5,'FaceColor',[.8 0 0]);
+            bar(1,y(1),.5,'FaceColor',[0 0 .8], 'FaceAlpha',.5);
+            bar(2,y(2),.5,'FaceColor',[.8 0 0], 'FaceAlpha',.5);
             title('Accuracy');
             ylabel('d-prime')
             set(gca,'XTick',[1 2]);
