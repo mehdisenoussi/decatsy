@@ -118,9 +118,11 @@ function []=decatsy_behavioral_simpleAnalysis(subject_ind, arg2)
     
     switch experiment_phase
         case {'train1', 'train2', 'train4', 'main'}
+            
             % Plot the distribution of reaction times
             figure();
-            subplot(1,2,1); hold on; suptitle(sprintf('Data for subject %s - phase %s', subject_ind, expPhase{2}));
+            subplot(1,3,1); hold on;
+            % suptitle(sprintf('Data for subject %s - phase %s', subject_ind, expPhase{2}));
             h1=histogram(respTime(logical(validity)), 5, 'Normalization', 'probability','FaceColor',[0 0 .8]);
             h2=histogram(respTime(~logical(validity)), 5, 'Normalization', 'probability','FaceColor',[.8 0 0]);
             plot([median(respTime(logical(validity))) median(respTime(logical(validity)))],[0 0.7], 'color',[0 0 .8])
@@ -134,15 +136,31 @@ function []=decatsy_behavioral_simpleAnalysis(subject_ind, arg2)
                     legend('valid','invalid','Location','NorthWest')
             end
             
-            % Plot the d-prime of each condition
-            subplot(1,2,2); y=[dprime_valid dprime_invalid]; hold on;
-            bar(1,y(1),.5,'FaceColor',[0 0 .8], 'FaceAlpha',.5);
-            bar(2,y(2),.5,'FaceColor',[.8 0 0], 'FaceAlpha',.5);
+
+            % Plot the d-prime of each condition (if in train4 or main)
+            subplot(1,3,2); y=[dprime_valid dprime_invalid]; hold on;
+            bar(1,y(1),.5,'FaceColor',[0 0 .8]);%, 'FaceAlpha',.5);
             title('Accuracy');
-            ylabel('d-prime')
-            set(gca,'XTick',[1 2]);
-            set(gca,'XTickLabel',{'Valid' 'Invalid'});
-            legend('valid','invalid')
+            ylabel('d-prime');
+            if strcmp(experiment_phase,'train4') || strcmp(experiment_phase, 'main')
+                bar(2,y(2),.5,'FaceColor',[.8 0 0]);%, 'FaceAlpha',.5);
+                set(gca,'XTick',[1 2]);
+                set(gca,'XTickLabel',{'Valid' 'Invalid'});
+            end
+            
+            
+            % Plot the accuracy of each condition (if in train4 or main)
+            subplot(1,3,3); y=[mean(correctResp(logical(validity)))...
+            mean(correctResp(~logical(validity)))]; hold on;
+            bar(1,y(1),.5,'FaceColor',[0 0 .8]);%, 'FaceAlpha',.5);
+            title('Accuracy');
+            ylabel('Propotion correct');
+            if strcmp(experiment_phase,'train4') || strcmp(experiment_phase, 'main')
+                bar(2,y(2),.5,'FaceColor',[.8 0 0]);%, 'FaceAlpha',.5);
+                set(gca,'XTick',[1 2]);
+                set(gca,'XTickLabel',{'Valid' 'Invalid'});
+            end
+
 
         case 'train3'
             figure(); hold on;
