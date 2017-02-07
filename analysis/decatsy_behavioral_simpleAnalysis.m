@@ -50,8 +50,8 @@ function []=decatsy_behavioral_simpleAnalysis(subject_ind, arg2)
     triali=triali(rej_behav_trials); respKey=respKey(rej_behav_trials);
     gratingOriL=gratingOriL(rej_behav_trials);
 
-    hits=zeros(2,n_trials); falsealarms=zeros(2,n_trials);
-    n_sig=[0 0]; n_nsig=[0 0]; misses=zeros(1,n_trials);
+    hits=zeros(2,n_trials); falsealarms=zeros(2,n_trials); gratOriTarget=zeros(1,n_trials);
+    n_sig=[0 0]; n_nsig=[0 0]; misses=zeros(1,n_trials); side=zeros(2,n_trials);
     if ~strcmp(expPhase(2), 'train1')
         leftResps=[{'s'} {'d'}]; rightResps=[{'k'} {'l'}];
         valid_trials_ind=find(validity==1); invalid_trials=find(validity==0);
@@ -60,13 +60,13 @@ function []=decatsy_behavioral_simpleAnalysis(subject_ind, arg2)
             for i=trialsbyvalidity{valid_ind}'
                 if ~correctSide(i); misses(i)=1;
                 else
-                    side=logical([sum(strcmp(respKey(i), leftResps)) sum(strcmp(respKey(i), rightResps))]);
-                    gratOris=[gratingOriL(i) gratingOriR(i)]; gratOriTarget=gratOris(side);
+                    side(:,i)=logical([sum(strcmp(respKey(i), leftResps)) sum(strcmp(respKey(i), rightResps))]);
+                    gratOris=[gratingOriL(i) gratingOriR(i)]; gratOriTarget(i)=gratOris(logical(side(:,i)));
                     % counter-clockwise response ? (can be changed to clockwise by
                     % switching the indices to 2s instead of 1s for the left- and
                     % rightResps variables
                     ccwResp=(strcmp(respKey(i), leftResps(1)) || strcmp(respKey(i), rightResps(1)));
-                    if gratOriTarget<0 || (gratOriTarget>45 && gratOriTarget<90)
+                    if gratOriTarget(i)<0 || (gratOriTarget(i)>45 && gratOriTarget(i)<90)
                         n_sig(valid_ind)=n_sig(valid_ind)+1;
                         if ccwResp; hits(valid_ind, i)=1; end
                     else
@@ -121,12 +121,14 @@ function []=decatsy_behavioral_simpleAnalysis(subject_ind, arg2)
             
             % Plot the distribution of reaction times
             figure();
-            subplot(1,3,1); hold on;
+            subplot(2,3,1); hold on;
             % suptitle(sprintf('Data for subject %s - phase %s', subject_ind, expPhase{2}));
             h1=histogram(respTime(logical(validity)), 5, 'Normalization', 'probability','FaceColor',[0 0 .8]);
             h2=histogram(respTime(~logical(validity)), 5, 'Normalization', 'probability','FaceColor',[.8 0 0]);
-            plot([median(respTime(logical(validity))) median(respTime(logical(validity)))],[0 0.7], 'color',[0 0 .8])
-            plot([median(respTime(~logical(validity))) median(respTime(~logical(validity)))],[0 0.7], 'color',[.8 0 0])
+            plot([median(respTime(logical(validity))) median(respTime(logical(validity)))],...
+                [0 max([h1.Values h2.Values]*1.2)], 'color',[0 0 .8])
+            plot([median(respTime(~logical(validity))) median(respTime(~logical(validity)))],...
+                [0 max([h1.Values h2.Values]*1.2)], 'color',[.8 0 0])
             xlim([-.05 .85]); xlabel('Reaction times (ms)'); ylabel('Probability');
             switch char(expPhase(2))
                 case {'train1', 'train2', 'train3'}
@@ -138,7 +140,7 @@ function []=decatsy_behavioral_simpleAnalysis(subject_ind, arg2)
             
 
             % Plot the d-prime of each condition (if in train4 or main)
-            subplot(1,3,2); y=[dprime_valid dprime_invalid]; hold on;
+            subplot(2,3,2); y=[dprime_valid dprime_invalid]; hold on;
             bar(1,y(1),.5,'FaceColor',[0 0 .8]);%, 'FaceAlpha',.5);
             title('Accuracy');
             ylabel('d-prime');
@@ -148,9 +150,8 @@ function []=decatsy_behavioral_simpleAnalysis(subject_ind, arg2)
                 set(gca,'XTickLabel',{'Valid' 'Invalid'});
             end
             
-            
-            % Plot the accuracy of each condition (if in train4 or main)
-            subplot(1,3,3); y=[mean(correctResp(logical(validity)))...
+            % Plot the accuracy by validity (if in train4 or main)
+            subplot(2,3,3); y=[mean(correctResp(logical(validity)))...
             mean(correctResp(~logical(validity)))]; hold on;
             bar(1,y(1),.5,'FaceColor',[0 0 .8]);%, 'FaceAlpha',.5);
             title('Accuracy');
@@ -160,6 +161,37 @@ function []=decatsy_behavioral_simpleAnalysis(subject_ind, arg2)
                 set(gca,'XTick',[1 2]);
                 set(gca,'XTickLabel',{'Valid' 'Invalid'});
             end
+            
+            % Plot accuracy for each cue
+            subplot(2,3,4); y=[mean(correctResp(logical(cue)))...
+            mean(correctResp(~logical(cue)))]; hold on;
+            bar(1,y(1),.5,'FaceColor',[0 0 .8]);%, 'FaceAlpha',.5);
+            title('Accuracy per cue');
+            ylabel('Propotion correct');
+            bar(2,y(2),.5,'FaceColor',[.8 0 0]);%, 'FaceAlpha',.5);
+            set(gca,'XTick',[1 2]);
+            set(gca,'XTickLabel',{'Square' 'Rot-Square'});
+            
+            % Plot accuracy for each orientation
+            vertTargets=gratOriTarget<45;
+            subplot(2,3,5); y=[mean(correctResp(logical(vertTargets)))...
+            mean(correctResp(~logical(vertTargets)))]; hold on;
+            bar(1,y(1),.5,'FaceColor',[0 0 .8]);%, 'FaceAlpha',.5);
+            bar(2,y(2),.5,'FaceColor',[.8 0 0]);%, 'FaceAlpha',.5);
+            title('Accuracy by Target orientation (vertical vs horizontal');
+            ylabel('Propotion correct');
+            set(gca,'XTick',[1 2]);
+            set(gca,'XTickLabel',{'Vertical' 'Horizontal'});
+            
+            % Plot accuracy for each side
+            subplot(2,3,6); y=[mean(correctResp(logical(side(1,:))))...
+            mean(correctResp(~logical(side(1,:))))]; hold on;
+            bar(1,y(1),.5,'FaceColor',[0 0 .8]);%, 'FaceAlpha',.5);
+            bar(2,y(2),.5,'FaceColor',[.8 0 0]);%, 'FaceAlpha',.5);
+            title('Accuracy by Target side');
+            ylabel('Propotion correct');
+            set(gca,'XTick',[1 2]);
+            set(gca,'XTickLabel',{'Left Target' 'Right Target'});
 
 
         case 'train3'
