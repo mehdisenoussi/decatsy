@@ -142,7 +142,7 @@ function []=decatsy_behavioral_simpleAnalysis(subject_ind, arg2)
             % Plot the d-prime of each condition (if in train4 or main)
             subplot(2,3,2); y=[dprime_valid dprime_invalid]; hold on;
             bar(1,y(1),.5,'FaceColor',[0 0 .8]);%, 'FaceAlpha',.5);
-            title('Accuracy');
+            title('Validity effect');
             ylabel('d-prime');
             if strcmp(experiment_phase,'train4') || strcmp(experiment_phase, 'main')
                 bar(2,y(2),.5,'FaceColor',[.8 0 0]);%, 'FaceAlpha',.5);
@@ -154,8 +154,9 @@ function []=decatsy_behavioral_simpleAnalysis(subject_ind, arg2)
             subplot(2,3,3); y=[mean(correctResp(logical(validity)))...
             mean(correctResp(~logical(validity)))]; hold on;
             bar(1,y(1),.5,'FaceColor',[0 0 .8]);%, 'FaceAlpha',.5);
-            title('Accuracy');
+            title('Validity effect');
             ylabel('Propotion correct');
+            ylim([0 1])
             if strcmp(experiment_phase,'train4') || strcmp(experiment_phase, 'main')
                 bar(2,y(2),.5,'FaceColor',[.8 0 0]);%, 'FaceAlpha',.5);
                 set(gca,'XTick',[1 2]);
@@ -166,11 +167,12 @@ function []=decatsy_behavioral_simpleAnalysis(subject_ind, arg2)
             subplot(2,3,4); y=[mean(correctResp(logical(cue)))...
             mean(correctResp(~logical(cue)))]; hold on;
             bar(1,y(1),.5,'FaceColor',[0 0 .8]);%, 'FaceAlpha',.5);
-            title('Accuracy per cue');
+            title('Cue');
             ylabel('Propotion correct');
             bar(2,y(2),.5,'FaceColor',[.8 0 0]);%, 'FaceAlpha',.5);
             set(gca,'XTick',[1 2]);
-            set(gca,'XTickLabel',{'Square' 'Rot-Square'});
+            set(gca,'XTickLabel',{'Square' 'Diamond'});
+            ylim([0 1])
             
             % Plot accuracy for each orientation
             vertTargets=gratOriTarget<45;
@@ -178,20 +180,22 @@ function []=decatsy_behavioral_simpleAnalysis(subject_ind, arg2)
             mean(correctResp(~logical(vertTargets)))]; hold on;
             bar(1,y(1),.5,'FaceColor',[0 0 .8]);%, 'FaceAlpha',.5);
             bar(2,y(2),.5,'FaceColor',[.8 0 0]);%, 'FaceAlpha',.5);
-            title('Accuracy by Target orientation (vertical vs horizontal');
+            title('Orientation');
             ylabel('Propotion correct');
             set(gca,'XTick',[1 2]);
             set(gca,'XTickLabel',{'Vertical' 'Horizontal'});
+            ylim([0 1])
             
             % Plot accuracy for each side
             subplot(2,3,6); y=[mean(correctResp(logical(side(1,:))))...
             mean(correctResp(~logical(side(1,:))))]; hold on;
             bar(1,y(1),.5,'FaceColor',[0 0 .8]);%, 'FaceAlpha',.5);
             bar(2,y(2),.5,'FaceColor',[.8 0 0]);%, 'FaceAlpha',.5);
-            title('Accuracy by Target side');
+            title('Location');
             ylabel('Propotion correct');
             set(gca,'XTick',[1 2]);
             set(gca,'XTickLabel',{'Left Target' 'Right Target'});
+            ylim([0 1])
 
 
         case 'train3'

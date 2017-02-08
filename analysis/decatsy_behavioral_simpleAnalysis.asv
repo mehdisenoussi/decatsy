@@ -1,34 +1,35 @@
 %% Simple script for simple behavioral analysis and monitoring of observer's performances
-% study_dir='/Users/mehdisenoussi/decatsy/';
-% results_dir=[study_dir 'behav_data_and_scripts/Results/'];
 
-% [s_ind, session, expPhase, condition, block, triali, respTime, respKey,...
-%     correctResp, correctSide, correctTilt, cue, precue, validity,...
-%     tiltsLvlV, tiltsLvlH, tiltStepsV, tiltStepsH, gratingOriL, gratingOriR] = ...
-%     textread([results_dir 'Subj-1-all.txt'],...
-%     '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s');
-
-%study_dir='/Users/mehdisenoussi/Dropbox/postphd/decatsy/code/';
-
-function []=decatsy_behavioral_simpleAnalysis(subject_ind, experiment_phase)
-    study_dir='../'; subject_ind=num2str(subject_ind);
+function []=decatsy_behavioral_simpleAnalysis(subject_ind, arg2)
+    study_dir='./'; subject_ind=num2str(subject_ind);
     results_dir=[study_dir 'Results/subj' subject_ind '/'];
-    listing = dir([results_dir '*.txt']); file_found=0; file_count=1;
-    if isempty(listing)
-        fprintf('NO FILES IN DIRECTORY'); return;
-    else
-        while ~file_found
-            [s_ind, subjGroup, session, expPhase, condition, block, triali, respTime,...
+    if length(arg2)<=6
+        experiment_phase=arg2;
+        listing = dir([results_dir '*.txt']); file_found=0; file_count=1;
+        if isempty(listing)
+            fprintf('NO FILES IN DIRECTORY'); return;
+        else
+            while ~file_found
+                [s_ind, subjGroup, session, expPhase, condition, block, triali, respTime,...
                 respKey, correctResp, correctSide, correctTilt, cue, precue, validity,...
                 tiltsLvlV, tiltsLvlH, tiltStepsV, tiltStepsH, gratingOriL, gratingOriR] = ...
                 textread([results_dir listing(file_count).name],...%'Subj-50-0170201T140609.txt'],...
                 '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s');
-            file_found=strcmp(experiment_phase, expPhase(2));
-            if ~file_found && file_count<length(listing); file_count=file_count+1;
-            else break; end
+                file_found=strcmp(experiment_phase, expPhase(2));
+                if ~file_found && file_count<length(listing); file_count=file_count+1;
+                else break; end
+            end
+            processed_file=listing(file_count).name;
         end
+    else
+        processed_file=arg2;
+        [s_ind, subjGroup, session, expPhase, condition, block, triali, respTime,...
+        respKey, correctResp, correctSide, correctTilt, cue, precue, validity,...
+        tiltsLvlV, tiltsLvlH, tiltStepsV, tiltStepsH, gratingOriL, gratingOriR] = ...
+        textread([results_dir processed_file],...
+        '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s');
+        experiment_phase=char(expPhase(2));
     end
-    processed_file=listing(file_count).name;
     fprintf(['\n\nfile processed: ' processed_file '\n\n']);
 
     correctResp=str2double(correctResp(2:end)); cue=str2double(cue(2:end));
@@ -49,9 +50,8 @@ function []=decatsy_behavioral_simpleAnalysis(subject_ind, experiment_phase)
     triali=triali(rej_behav_trials); respKey=respKey(rej_behav_trials);
     gratingOriL=gratingOriL(rej_behav_trials);
 
-    hits=zeros(2,n_trials); falsealarms=zeros(2,n_trials);
-    n_sig=[0 0]; n_nsig=[0 0];
-    misses=zeros(1,n_trials);correctrej=zeros(1,n_trials);
+    hits=zeros(2,n_trials); falsealarms=zeros(2,n_trials); gratOriTarget=zeros(1,n_trials);
+    n_sig=[0 0]; n_nsig=[0 0]; misses=zeros(1,n_trials); side=zeros(2,n_trials);
     if ~strcmp(expPhase(2), 'train1')
         leftResps=[{'s'} {'d'}]; rightResps=[{'k'} {'l'}];
         valid_trials_ind=find(validity==1); invalid_trials=find(validity==0);
@@ -60,13 +60,13 @@ function []=decatsy_behavioral_simpleAnalysis(subject_ind, experiment_phase)
             for i=trialsbyvalidity{valid_ind}'
                 if ~correctSide(i); misses(i)=1;
                 else
-                    side=logical([sum(strcmp(respKey(i), leftResps)) sum(strcmp(respKey(i), rightResps))]);
-                    gratOris=[gratingOriL(i) gratingOriR(i)]; gratOriTarget=gratOris(side);
+                    side(:,i)=logical([sum(strcmp(respKey(i), leftResps)) sum(strcmp(respKey(i), rightResps))]);
+                    gratOris=[gratingOriL(i) gratingOriR(i)]; gratOriTarget(i)=gratOris(logical(side(:,i)));
                     % counter-clockwise response ? (can be changed to clockwise by
                     % switching the indices to 2s instead of 1s for the left- and
                     % rightResps variables
                     ccwResp=(strcmp(respKey(i), leftResps(1)) || strcmp(respKey(i), rightResps(1)));
-                    if gratOriTarget<0 || (gratOriTarget>45 && gratOriTarget<90)
+                    if gratOriTarget(i)<0 || (gratOriTarget(i)>45 && gratOriTarget(i)<90)
                         n_sig(valid_ind)=n_sig(valid_ind)+1;
                         if ccwResp; hits(valid_ind, i)=1; end
                     else
@@ -113,34 +113,90 @@ function []=decatsy_behavioral_simpleAnalysis(subject_ind, experiment_phase)
 
     dprime_valid=norminv(valhits)-norminv(valfas);
     dprime_invalid=norminv(invalhits)-norminv(invalfas);
-
+    
     %% Plots
-keyboard
+    
     switch experiment_phase
         case {'train1', 'train2', 'train4', 'main'}
+            
             % Plot the distribution of reaction times
             figure();
-            subplot(1,2,1); hold on;
-            h1=histogram(respTime(logical(cue)), 5, 'Normalization', 'probability','FaceColor',[0 0 .8]);
-            h2=histogram(respTime(~logical(cue)), 5, 'Normalization', 'probability','FaceColor',[.8 0 0]);
+            subplot(2,3,1); hold on;
+            % suptitle(sprintf('Data for subject %s - phase %s', subject_ind, expPhase{2}));
+            h1=histogram(respTime(logical(validity)), 5, 'Normalization', 'probability','FaceColor',[0 0 .8]);
+            h2=histogram(respTime(~logical(validity)), 5, 'Normalization', 'probability','FaceColor',[.8 0 0]);
+            plot([median(respTime(logical(validity))) median(respTime(logical(validity)))],...
+                [0 max([h1.Values h2.Values]*1.2)], 'color',[0 0 .8])
+            plot([median(respTime(~logical(validity))) median(respTime(~logical(validity)))],...
+                [0 max([h1.Values h2.Values]*1.2)], 'color',[.8 0 0])
             xlim([-.05 .85]); xlabel('Reaction times (ms)'); ylabel('Probability');
             switch char(expPhase(2))
                 case {'train1', 'train2', 'train3'}
-                    title(['Phase' expPhase(2)]);
+                    title(['Histogram of reaction times']);
                 case {'train4', 'main'}
-                    title(sprintf(['Phase %s'], expPhase{2}));
-                    legend('valid','invalid')
+                    title(sprintf('Histogram of reaction times\nvalid versus invalid condition'));
+                    legend('valid','invalid','Location','NorthWest')
             end
+            
 
-            % Plot the d-prime of each condition
-            subplot(1,2,2); y=[dprime_valid dprime_invalid]; hold on;
-            bar(1,y(1),.5,'FaceColor',[0 0 .8]);
-            bar(2,y(2),.5,'FaceColor',[.8 0 0]);
+            % Plot the d-prime of each condition (if in train4 or main)
+            subplot(2,3,2); y=[dprime_valid dprime_invalid]; hold on;
+            bar(1,y(1),.5,'FaceColor',[0 0 .8]);%, 'FaceAlpha',.5);
             title('Accuracy');
-            ylabel('d-prime')
+            ylabel('d-prime');
+            if strcmp(experiment_phase,'train4') || strcmp(experiment_phase, 'main')
+                bar(2,y(2),.5,'FaceColor',[.8 0 0]);%, 'FaceAlpha',.5);
+                set(gca,'XTick',[1 2]);
+                set(gca,'XTickLabel',{'Valid' 'Invalid'});
+            end
+            
+            % Plot the accuracy by validity (if in train4 or main)
+            subplot(2,3,3); y=[mean(correctResp(logical(validity)))...
+            mean(correctResp(~logical(validity)))]; hold on;
+            bar(1,y(1),.5,'FaceColor',[0 0 .8]);%, 'FaceAlpha',.5);
+            title('Validi');
+            ylabel('Propotion correct');
+            ylim([0 1])
+            if strcmp(experiment_phase,'train4') || strcmp(experiment_phase, 'main')
+                bar(2,y(2),.5,'FaceColor',[.8 0 0]);%, 'FaceAlpha',.5);
+                set(gca,'XTick',[1 2]);
+                set(gca,'XTickLabel',{'Valid' 'Invalid'});
+            end
+            
+            % Plot accuracy for each cue
+            subplot(2,3,4); y=[mean(correctResp(logical(cue)))...
+            mean(correctResp(~logical(cue)))]; hold on;
+            bar(1,y(1),.5,'FaceColor',[0 0 .8]);%, 'FaceAlpha',.5);
+            title('Cue');
+            ylabel('Propotion correct');
+            bar(2,y(2),.5,'FaceColor',[.8 0 0]);%, 'FaceAlpha',.5);
             set(gca,'XTick',[1 2]);
-            set(gca,'XTickLabel',{'Valid' 'Invalid'});
-            legend('valid','invalid')
+            set(gca,'XTickLabel',{'Square' 'Diamond'});
+            ylim([0 1])
+            
+            % Plot accuracy for each orientation
+            vertTargets=gratOriTarget<45;
+            subplot(2,3,5); y=[mean(correctResp(logical(vertTargets)))...
+            mean(correctResp(~logical(vertTargets)))]; hold on;
+            bar(1,y(1),.5,'FaceColor',[0 0 .8]);%, 'FaceAlpha',.5);
+            bar(2,y(2),.5,'FaceColor',[.8 0 0]);%, 'FaceAlpha',.5);
+            title('Orientation');
+            ylabel('Propotion correct');
+            set(gca,'XTick',[1 2]);
+            set(gca,'XTickLabel',{'Vertical' 'Horizontal'});
+            ylim([0 1])
+            
+            % Plot accuracy for each side
+            subplot(2,3,6); y=[mean(correctResp(logical(side(1,:))))...
+            mean(correctResp(~logical(side(1,:))))]; hold on;
+            bar(1,y(1),.5,'FaceColor',[0 0 .8]);%, 'FaceAlpha',.5);
+            bar(2,y(2),.5,'FaceColor',[.8 0 0]);%, 'FaceAlpha',.5);
+            title('Location');
+            ylabel('Propotion correct');
+            set(gca,'XTick',[1 2]);
+            set(gca,'XTickLabel',{'Left Target' 'Right Target'});
+            ylim([0 1])
+
 
         case 'train3'
             figure(); hold on;
