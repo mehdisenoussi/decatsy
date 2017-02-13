@@ -148,7 +148,7 @@ function []=decatsy_behavioral_simpleAnalysis(subject_ind, arg2)
                 [0 max([h1.Values h2.Values]*1.2)], 'color',[0 0 .8])
             plot([median(respTime(~logical(validity))) median(respTime(~logical(validity)))],...
                 [0 max([h1.Values h2.Values]*1.2)], 'color',[.8 0 0])
-            xlim([-.05 .85]); xlabel('Reaction times (ms)'); ylabel('Probability');
+            xlim([-.05 1.05]); xlabel('Reaction times (ms)'); ylabel('Probability');
             switch char(expPhase(2))
                 case {'train1', 'train2', 'train3'}
                     title(['Histogram of reaction times']);
