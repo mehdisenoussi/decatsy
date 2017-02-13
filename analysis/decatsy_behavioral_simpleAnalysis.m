@@ -11,7 +11,7 @@ function []=decatsy_behavioral_simpleAnalysis(subject_ind, arg2)
         else
             while ~file_found
                 [s_ind, subjGroup, session, expPhase, condition, block, triali, respTime,...
-                respKey, correctResp, correctSide, correctTilt, cue, precue, validity,...
+                respKey, correctResp, correctSide, correctTilt, precue, cue, validity,...
                 tiltsLvlV, tiltsLvlH, tiltStepsV, tiltStepsH, gratingOriL, gratingOriR] = ...
                 textread([results_dir listing(file_count).name],...%'Subj-50-0170201T140609.txt'],...
                 '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s');
@@ -24,7 +24,7 @@ function []=decatsy_behavioral_simpleAnalysis(subject_ind, arg2)
     else
         processed_file=arg2;
         [s_ind, subjGroup, session, expPhase, condition, block, triali, respTime,...
-        respKey, correctResp, correctSide, correctTilt, cue, precue, validity,...
+        respKey, correctResp, correctSide, correctTilt, precue, cue, validity,...
         tiltsLvlV, tiltsLvlH, tiltStepsV, tiltStepsH, gratingOriL, gratingOriR] = ...
         textread([results_dir processed_file],...
         '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s');
@@ -37,8 +37,8 @@ function []=decatsy_behavioral_simpleAnalysis(subject_ind, arg2)
     gratingOriR=str2double(gratingOriR(2:end)); validity=str2double(validity(2:end));
     correctSide=str2double(correctSide(2:end)); correctTilt=str2double(correctTilt(2:end));
     tiltsLvlV=str2double(tiltsLvlV(2:end)); tiltsLvlH=str2double(tiltsLvlH(2:end));
-    triali=str2double(triali(2:end)); respKey=respKey(2:end);
-    gratingOriL=str2double(gratingOriL(2:end));
+    triali=str2double(triali(2:end)); respKey=respKey(2:end); session=str2double(session(2));
+    gratingOriL=str2double(gratingOriL(2:end)); subjGroup=str2double(subjGroup(2));
 
     rej_behav_trials=~logical(validity==-5); n_trials=sum(rej_behav_trials);
 
@@ -49,19 +49,38 @@ function []=decatsy_behavioral_simpleAnalysis(subject_ind, arg2)
     tiltsLvlH=tiltsLvlH(rej_behav_trials); tiltsLvlV=tiltsLvlV(rej_behav_trials);
     triali=triali(rej_behav_trials); respKey=respKey(rej_behav_trials);
     gratingOriL=gratingOriL(rej_behav_trials);
-
-    hits=zeros(2,n_trials); falsealarms=zeros(2,n_trials); gratOriTarget=zeros(1,n_trials);
-    n_sig=[0 0]; n_nsig=[0 0]; misses=zeros(1,n_trials); side=zeros(2,n_trials);
+    
+    emp_valid=precue==cue; validity=emp_valid;
+    feature_disp=gratingOriR<45; % 0=horiz-left/verti-right, 1=the inverse
+    
+    [condition, cueStimAsso, leftResps, rightResps, ~, validRatio, ~]=...
+    init_cueStimAsso_keys_stimParams(subjGroup, session, experiment_phase);
+    
+    switch condition
+        case 'feature'
+            targetFeat=cueStimAsso(logical(cue)+1);
+            targetRightVert=strcmp(targetFeat, 'vert') & feature_disp;
+            targetLeftHori=strcmp(targetFeat, 'hori') & ~feature_disp;
+            targetRight=targetRightVert + targetLeftHori;
+            targetLoc=[~targetRight targetRight];
+        case 'spatial'
+            targetPos=cueStimAsso(logical(cue)+1);
+            if strcmp(targetPos,'left');
+                targetFeat=stimFeat(logical(trials.feature(1,triali))+1);
+            else targetFeat=stimFeat(logical(trials.feature(2,triali))+1);
+            end
+    end
+    
+    hits=zeros(2,n_trials); falsealarms=zeros(2,n_trials); n_sig=[0 0];...
+    n_nsig=[0 0]; gratOriTarget=zeros(1,n_trials); misses=zeros(1,n_trials);
     if ~strcmp(expPhase(2), 'train1')
-        leftResps=[{'s'} {'d'}]; rightResps=[{'k'} {'l'}];
         valid_trials_ind=find(validity==1); invalid_trials=find(validity==0);
         trialsbyvalidity={valid_trials_ind invalid_trials};
         for valid_ind=1:2
             for i=trialsbyvalidity{valid_ind}'
                 if ~correctSide(i); misses(i)=1;
                 else
-                    side(:,i)=logical([sum(strcmp(respKey(i), leftResps)) sum(strcmp(respKey(i), rightResps))]);
-                    gratOris=[gratingOriL(i) gratingOriR(i)]; gratOriTarget(i)=gratOris(logical(side(:,i)));
+                    gratOris=[gratingOriL(i) gratingOriR(i)]; gratOriTarget(i)=gratOris(logical(targetLoc(i,:)));
                     % counter-clockwise response ? (can be changed to clockwise by
                     % switching the indices to 2s instead of 1s for the left- and
                     % rightResps variables
@@ -84,7 +103,7 @@ function []=decatsy_behavioral_simpleAnalysis(subject_ind, arg2)
     elseif (sum(hits(1,:))/n_sig(1))==0
         valhits=(sum(hits(1,:))+1)/n_sig(1);
     elseif ((sum(hits(1,:))/n_sig(1)))==1
-        valhits=(sum(hits(1,:))-1)/n_sig(1); 
+        valhits=(sum(hits(1,:))-1)/n_sig(1);
     end
 
     if (sum(hits(2,:))/n_sig(2))~=0 && (sum(hits(2,:))/n_sig(2))~=1
@@ -92,7 +111,7 @@ function []=decatsy_behavioral_simpleAnalysis(subject_ind, arg2)
     elseif (sum(hits(2,:))/n_sig(2))==0
         invalhits=(sum(hits(2,:))+1)/n_sig(2);
     elseif (sum(hits(2,:))/n_sig(2))==1
-        invalhits=(sum(hits(2,:))-1)/n_sig(2);  
+        invalhits=(sum(hits(2,:))-1)/n_sig(2); 
     end
 
     if ((sum(falsealarms(1,:))/n_nsig(1)))~=0 && ((sum(falsealarms(1,:))/n_nsig(1)))~=1
@@ -180,15 +199,16 @@ function []=decatsy_behavioral_simpleAnalysis(subject_ind, arg2)
             mean(correctResp(~logical(vertTargets)))]; hold on;
             bar(1,y(1),.5,'FaceColor',[0 0 .8]);%, 'FaceAlpha',.5);
             bar(2,y(2),.5,'FaceColor',[.8 0 0]);%, 'FaceAlpha',.5);
-            title('Orientation');
+            title(sprintf('Orientation\ntilt levels: Vert=%.2f, Hori=%.2f',...
+                tiltsLvlV(2), tiltsLvlH(2)));
             ylabel('Propotion correct');
             set(gca,'XTick',[1 2]);
             set(gca,'XTickLabel',{'Vertical' 'Horizontal'});
             ylim([0 1])
             
             % Plot accuracy for each side
-            subplot(2,3,6); y=[mean(correctResp(logical(side(1,:))))...
-            mean(correctResp(~logical(side(1,:))))]; hold on;
+            subplot(2,3,6); y=[mean(correctResp(logical(targetLoc(:,1))))...
+            mean(correctResp(logical(targetLoc(:,2))))]; hold on;
             bar(1,y(1),.5,'FaceColor',[0 0 .8]);%, 'FaceAlpha',.5);
             bar(2,y(2),.5,'FaceColor',[.8 0 0]);%, 'FaceAlpha',.5);
             title('Location');
@@ -201,7 +221,7 @@ function []=decatsy_behavioral_simpleAnalysis(subject_ind, arg2)
         case 'train3'
             figure(); hold on;
             plot(1:sum(rej_behav_trials), tiltsLvlV, 'color',[0 .8 0], 'LineWidth',2);
-            plot(1:sum(rej_behav_trials), tiltsLvlH, 'color',[.8 0 .8], 'LineWidth',2);
+            plot(1:sum(rej_behav_trials), tiltsLvlH, 'color',[.8 .5 0], 'LineWidth',2);
             ylabel('Tilt levels (?)'); xlabel('Trial number'); grid;
             legend('Vertical grating','Horizontal grating');
             xlim([-1 sum(rej_behav_trials)+1]);

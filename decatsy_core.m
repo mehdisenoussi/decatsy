@@ -2,17 +2,20 @@
 % Core script of DECATSY experiment
 % This script mainly loops for the different trials, processes the
 % response, sends the EEG and EL triggers and writes in the log file.
-function [tiltLvls] = decatsy_core(s_ind, subjGroup, session, condition, expPhase, block,...
+function [tiltLvls, tiltHistory] = decatsy_core(s_ind, subjGroup, session, condition, expPhase, block,...
     mainvar, n_trials, cueStimAsso, leftResps, rightResps, responseKeys,...
     stims, timing, trials, staircase, tiltLvls, tiltSteps, window, pixindeg,...
     diffWandG, grey, xCenter, yCenter, ifi, screenYpixels, stimFeat, el, rad...
-    ,object, port, maxTiltsLvl, minTiltsLvl)
+    ,object, port, maxTiltsLvl, minTiltsLvl, minTiltStep)
     
     %% Setting up log file
     dateLaunch=datestr(now, 30);
     filename=sprintf('./Results/subj%i/Subj-%i-%s.txt',s_ind,dateLaunch);
     fid=fopen(filename,'w');
-    fprintf(fid,'s_ind\tsubjGroup\tsession\tphase\tcondition\tblock\ttrial\trespTime\trespKey\tcorrectResp\tcorrectSide\tcorrectTilt\tprecue\tcue\tvalidity\ttiltLvlVert\ttiltLvlHori\ttiltStepVert\ttiltStepHori\tgratingOriLeft\tgratingOriRight\n');
+    fprintf(fid,['s_ind\tsubjGroup\tsession\tphase\tcondition\tblock\ttrial\trespTime'...
+        '\trespKey\tcorrectResp\tcorrectSide\tcorrectTilt\tprecue\tcue\tvalidity'...
+        '\ttiltLvlVert\ttiltLvlHori\ttiltStepVert\ttiltStepHori\tgratingOriLeft\t'...
+        'gratingOriRight\n']);
 
     %% Fixation and cue
     % Define a squared matrix of zeros // if in phase train3 make circular cue 
@@ -62,6 +65,8 @@ function [tiltLvls] = decatsy_core(s_ind, subjGroup, session, condition, expPhas
         reversals=zeros(2,n_trials);
         tiltChanges=zeros(2,n_trials);
         lastTiltChangeSign=[0 0];
+        lastRespondedTrialByFeat=[0 0];
+        
     end
     
     %% Presentation of the stimuli
@@ -263,6 +268,7 @@ function [tiltLvls] = decatsy_core(s_ind, subjGroup, session, condition, expPhas
                         [respTrials, respFixCol]=process_resp(respTrials,...
                             trials,triali,condition,expPhase,cueStimAsso,...
                             stimFeat,leftResps,rightResps,responseKey);
+                        trialFeat=strcmp(respTrials(triali).targetFeat, stimFeat);
                     else respTrials(triali).correctResp=0;
                     end
                 end
@@ -282,6 +288,17 @@ function [tiltLvls] = decatsy_core(s_ind, subjGroup, session, condition, expPhas
             % the end of the trial sequence
             n_trials=n_trials+1; trials=append_trial(trials,triali);
             WaitSecs(1);
+            % add information from the previous trials to avoid staircase
+            % looking into an empty structure
+            if triali>1 
+                respTrials(triali).correctResp=respTrials(triali-1).correctResp;
+                respTrials(triali).respKey=respTrials(triali-1).respKey;
+                respTrials(triali).respTime=respTrials(triali-1).respTime;
+                respTrials(triali).targetFeat=respTrials(triali-1).targetFeat;
+                respTrials(triali).targetPos=respTrials(triali-1).targetPos;
+                respTrials(triali).correctSide=respTrials(triali-1).correctSide;
+                respTrials(triali).correctTilt=respTrials(triali-1).correctTilt;
+            end
         else
             Screen('DrawLines', window, allCoords,lineWidthPix,[1 1 1],[xCenter yCenter],0);
             Screen('Flip', window);
@@ -305,13 +322,26 @@ function [tiltLvls] = decatsy_core(s_ind, subjGroup, session, condition, expPhas
                 % If subject did not respond the trial will be re-presented
                 % at the end of the trial sequence
                 n_trials=n_trials+1; trials=append_trial(trials,triali);
+                % add information from the previous trials to avoid staircase
+                % looking into an empty structure
+                if triali>1
+                    respTrials(triali).correctResp=respTrials(triali-1).correctResp;
+                    respTrials(triali).respKey=respTrials(triali-1).respKey;
+                    respTrials(triali).respTime=respTrials(triali-1).respTime;
+                    respTrials(triali).targetFeat=respTrials(triali-1).targetFeat;
+                    respTrials(triali).targetPos=respTrials(triali-1).targetPos;
+                    respTrials(triali).correctSide=respTrials(triali-1).correctSide;
+                    respTrials(triali).correctTilt=respTrials(triali-1).correctTilt;
+                end
             end
 
             % Staircase
             if staircase && triali>1 && responded
                 [tiltLvls, tiltSteps, tiltChanges, lastTiltChangeSign, reversals] =...
                     do_staircase(stimFeat, tiltLvls, tiltSteps, respTrials,...
-                    triali, tiltChanges, lastTiltChangeSign, reversals, minTiltsLvl, maxTiltsLvl);
+                    triali, tiltChanges, lastTiltChangeSign, reversals,...
+                    minTiltsLvl, maxTiltsLvl, minTiltStep,lastRespondedTrialByFeat);
+                lastRespondedTrialByFeat(trialFeat)=triali;
             end
             
 
@@ -327,7 +357,7 @@ function [tiltLvls] = decatsy_core(s_ind, subjGroup, session, condition, expPhas
                 end
             end
         end
-
+        tiltHistory(triali,:)=tiltLvls;
         triali=triali+1;
     end
 

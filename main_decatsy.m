@@ -112,6 +112,7 @@ function [] = main_decatsy(s_ind, subjGroup, session, expPhase, block,...
     stimPos=[{'left'}; {'right'}]; stimFeat=[{'vert'}; {'hori'}];
     % setting up tiltLvls here because for train1 phase we want 0 tilt
     tiltLvls=[7 7]; minTiltsLvl=.5; maxTiltsLvl=30; tiltSteps=[3 3];
+    minTiltStep=.1;
     staircase=0; % except for phase 3 of the training
     
     % Initialize some parameters depending on observer's group, session and phase
@@ -122,7 +123,7 @@ function [] = main_decatsy(s_ind, subjGroup, session, expPhase, block,...
         case 'train1' % phase 1 of training: no tilt, just learning associations
             timing.beginTrial=.600; timing.precue=0; timing.ISI1=0; timing.stimPres=1.;
             timing.ISI2=.00; timing.responseTime=2.0; timing.ITIs=.400:.1:1.400;
-            n_trials=30; tiltLvls=[0 0];
+            n_trials=32; tiltLvls=[0 0];
         case 'train2' % phase 2 of training: easy settings, learning trial event sequence and keys
             if block == 1 % Slow timing
                 timing.beginTrial=.600; timing.precue=.250; timing.ISI1=2;
@@ -131,15 +132,15 @@ function [] = main_decatsy(s_ind, subjGroup, session, expPhase, block,...
                 timing.beginTrial=.600; timing.precue=.120; timing.ISI1=2; timing.stimPres=.060;
                 timing.ISI2=.900; timing.responseTime=1.000; timing.ITIs=.400:.1:1.400;
             end
-            n_trials=30;
+            n_trials=32;
         case 'train3' % phase 3 of training: staircase, main task/real conditions
             timing.beginTrial=.600; timing.precue=.120; timing.ISI1=2; timing.stimPres=.060;
             timing.ISI2=.900; timing.responseTime=1.000; timing.ITIs=.400:.1:1.400;
-            n_trials=90; staircase=1;
+            n_trials=96; staircase=1;
         case {'train4', 'main'} % phase 4 of training and main task: real conditions with staircased tilt
             timing.beginTrial=.600; timing.precue=.120; timing.ISI1=2; timing.stimPres=.060;
             timing.ISI2=.900; timing.responseTime=1.000; timing.ITIs=.400:.1:1.400; 
-            n_trials=50;
+            n_trials=64;
             load(sprintf('%s/subj%i_cond_%s_staircase_tiltlvls.mat',subjFolder,s_ind,condition));
     end
 
@@ -156,17 +157,18 @@ function [] = main_decatsy(s_ind, subjGroup, session, expPhase, block,...
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Decatsy core script call
-    tiltLvls = decatsy_core(s_ind, subjGroup, session, condition, expPhase, block,...
-        mainvar, n_trials, cueStimAsso, leftResps, rightResps, responseKeys,...
-        stims, timing, trials, staircase, tiltLvls, tiltSteps, window, pixindeg,...
-        diffWandG, grey, xCenter, yCenter, ifi, screenYpixels, stimFeat, el, rad,...
-        object, port, maxTiltsLvl, minTiltsLvl);
+    [tiltLvls tiltHistory] = decatsy_core(s_ind, subjGroup, session, condition,...
+        expPhase, block, mainvar, n_trials, cueStimAsso, leftResps, rightResps,...
+        responseKeys, stims, timing, trials, staircase, tiltLvls, tiltSteps,...
+        window, pixindeg,diffWandG, grey, xCenter, yCenter, ifi, screenYpixels,...
+        stimFeat, el, rad, object, port, maxTiltsLvl, minTiltsLvl, minTiltStep);
 
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % saves the staircase tilt levels if in phase 3 of training
     if strcmp(expPhase, 'train3')
-        save(sprintf('%s/subj%i_cond_%s_staircase_tiltlvls.mat',subjFolder,s_ind,condition), 'tiltLvls')
+        avg_tiltLvls=mean(tiltHistory(end-10:end,:),1);
+        save(sprintf('%s/subj%i_cond_%s_staircase_tiltlvls.mat',subjFolder,s_ind,condition), 'avg_tiltLvls')
     end
 
 

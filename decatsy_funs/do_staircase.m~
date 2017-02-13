@@ -27,13 +27,13 @@ function [tiltLvls, tiltSteps, tiltChanges, lastTiltChangeSign, reversals] =...
             lastTiltChangeSign(targetFeatInd)=tiltSign;
         end
 
-    elseif respTrials(triali).correctSide
+    else
         tiltSign=0;
         % not 1st reversal: one-up-two-down
         if not(respTrials(triali).correctResp)
            tiltSign=1; % one-up -> increase tiltLvl
         elseif respTrials(triali).correctResp && ...
-                respTrials(lastRespondedTrialByFeat(targetFeatInd)).correctResp
+                respTrials(lastRespondedTrialByFeat).correctResp
             tiltSign=-1; % two-down -> decrease tiltLvl
         end
         tilt=tilt+(tiltSign*tiltSteps(targetFeatInd));
