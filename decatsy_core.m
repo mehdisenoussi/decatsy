@@ -10,7 +10,7 @@ function [tiltLvls, tiltHistory] = decatsy_core(s_ind, subjGroup, session, condi
     
     %% Setting up log file
     dateLaunch=datestr(now, 30);
-    filename=sprintf('./Results/subj%i/Subj-%i-%s.txt',s_ind,dateLaunch);
+    filename=sprintf('./Results/subj%i/Subj-%i-%s.txt',s_ind,s_ind,dateLaunch);
     fid=fopen(filename,'w');
     fprintf(fid,['s_ind\tsubjGroup\tsession\tphase\tcondition\tblock\ttrial\trespTime'...
         '\trespKey\tcorrectResp\tcorrectSide\tcorrectTilt\tprecue\tcue\tvalidity'...
