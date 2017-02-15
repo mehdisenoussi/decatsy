@@ -136,11 +136,11 @@ function [] = main_decatsy(s_ind, subjGroup, session, expPhase, block,...
         case 'train3' % phase 3 of training: staircase, main task/real conditions
             timing.beginTrial=.600; timing.precue=.120; timing.ISI1=2; timing.stimPres=.060;
             timing.ISI2=.900; timing.responseTime=1.000; timing.ITIs=.400:.1:1.400;
-            n_trials=96; staircase=1; % n_trials=96;
+            n_trials=128; staircase=1; % n_trials=96;
         case {'train4', 'main'} % phase 4 of training and main task: real conditions with staircased tilt
             timing.beginTrial=.600; timing.precue=.120; timing.ISI1=2; timing.stimPres=.060;
             timing.ISI2=.900; timing.responseTime=1.000; timing.ITIs=.400:.1:1.400; 
-            n_trials=64; % n_trials=64;
+            n_trials=96; % n_trials=96;
             load(sprintf('%s/subj%i_cond_%s_staircase_tiltlvls.mat',subjFolder,s_ind,condition));
     end
 

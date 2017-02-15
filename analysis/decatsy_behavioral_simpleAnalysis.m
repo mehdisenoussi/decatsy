@@ -1,8 +1,9 @@
 %% Simple script for simple behavioral analysis and monitoring of observer's performances
 
-function []=decatsy_behavioral_simpleAnalysis(subject_ind, arg2)
+function []=decatsy_behavioral_simpleAnalysis(subject_ind, arg2, validAndCorrectSide)
     study_dir='./'; subject_ind=num2str(subject_ind);
     results_dir=[study_dir 'Results/subj' subject_ind '/'];
+    if ~exist('validAndCorrectSide'); validAndCorrectSide=0; end
     if length(arg2)<=6
         experiment_phase=arg2;
         listing = dir([results_dir '*.txt']); file_found=0; file_count=1;
@@ -149,6 +150,7 @@ function []=decatsy_behavioral_simpleAnalysis(subject_ind, arg2)
             plot([median(respTime(~logical(validity))) median(respTime(~logical(validity)))],...
                 [0 max([h1.Values h2.Values]*1.2)], 'color',[.8 0 0])
             xlim([-.05 1.05]); xlabel('Reaction times (ms)'); ylabel('Probability');
+            grid on;
             switch char(expPhase(2))
                 case {'train1', 'train2', 'train3'}
                     title(['Histogram of reaction times']);
@@ -162,7 +164,7 @@ function []=decatsy_behavioral_simpleAnalysis(subject_ind, arg2)
             subplot(2,3,2); y=[dprime_valid dprime_invalid]; hold on;
             bar(1,y(1),.5,'FaceColor',[0 0 .8]);%, 'FaceAlpha',.5);
             title('Validity effect');
-            ylabel('d-prime');
+            ylabel('d-prime'); grid on;
             if strcmp(experiment_phase,'train4') || strcmp(experiment_phase, 'main')
                 bar(2,y(2),.5,'FaceColor',[.8 0 0]);%, 'FaceAlpha',.5);
                 set(gca,'XTick',[1 2]);
@@ -170,12 +172,16 @@ function []=decatsy_behavioral_simpleAnalysis(subject_ind, arg2)
             end
             
             % Plot the accuracy by validity (if in train4 or main)
-            subplot(2,3,3); y=[mean(correctResp(logical(validity)))...
-            mean(correctResp(~logical(validity)))]; hold on;
+            subplot(2,3,3);
+            if validAndCorrectSide
+                y=[mean(correctResp(logical(validity) & logical(correctSide)))...
+                    mean(correctResp(~logical(validity) & logical(correctSide)))]; hold on;
+            else y=[mean(correctResp(logical(validity))) mean(correctResp(~logical(validity)))]; hold on;
+            end
             bar(1,y(1),.5,'FaceColor',[0 0 .8]);%, 'FaceAlpha',.5);
             title('Validity effect');
             ylabel('Propotion correct');
-            ylim([0 1])
+            ylim([.4 1]); grid on;
             if strcmp(experiment_phase,'train4') || strcmp(experiment_phase, 'main')
                 bar(2,y(2),.5,'FaceColor',[.8 0 0]);%, 'FaceAlpha',.5);
                 set(gca,'XTick',[1 2]);
@@ -183,20 +189,28 @@ function []=decatsy_behavioral_simpleAnalysis(subject_ind, arg2)
             end
             
             % Plot accuracy for each cue
-            subplot(2,3,4); y=[mean(correctResp(logical(cue)))...
-            mean(correctResp(~logical(cue)))]; hold on;
+            subplot(2,3,4);
+            if validAndCorrectSide
+                y=[mean(correctResp(logical(cue) & logical(correctSide) & logical(validity)))...
+                    mean(correctResp(~logical(cue) & logical(correctSide) & logical(validity)))]; hold on;
+            else y=[mean(correctResp(logical(cue))) mean(correctResp(~logical(cue)))]; hold on;
+            end
             bar(1,y(1),.5,'FaceColor',[0 0 .8]);%, 'FaceAlpha',.5);
             title('Cue');
             ylabel('Propotion correct');
             bar(2,y(2),.5,'FaceColor',[.8 0 0]);%, 'FaceAlpha',.5);
             set(gca,'XTick',[1 2]);
             set(gca,'XTickLabel',{'Square' 'Diamond'});
-            ylim([0 1])
+            ylim([.4 1]); grid on;
             
             % Plot accuracy for each orientation
             vertTargets=gratOriTarget<45;
-            subplot(2,3,5); y=[mean(correctResp(logical(vertTargets)))...
-            mean(correctResp(~logical(vertTargets)))]; hold on;
+            subplot(2,3,5);
+            if validAndCorrectSide
+                y=[mean(correctResp(logical(vertTargets) & logical(correctSide)' & logical(validity)'))...
+                    mean(correctResp(~logical(vertTargets) & logical(correctSide)' & logical(validity)'))]; hold on;
+            else y=[mean(correctResp(logical(vertTargets))) mean(correctResp(~logical(vertTargets)))]; hold on;
+            end
             bar(1,y(1),.5,'FaceColor',[0 0 .8]);%, 'FaceAlpha',.5);
             bar(2,y(2),.5,'FaceColor',[.8 0 0]);%, 'FaceAlpha',.5);
             title(sprintf('Orientation\ntilt levels: Vert=%.2f, Hori=%.2f',...
@@ -204,27 +218,36 @@ function []=decatsy_behavioral_simpleAnalysis(subject_ind, arg2)
             ylabel('Propotion correct');
             set(gca,'XTick',[1 2]);
             set(gca,'XTickLabel',{'Vertical' 'Horizontal'});
-            ylim([0 1])
+            ylim([.4 1]); grid on;
             
             % Plot accuracy for each side
-            subplot(2,3,6); y=[mean(correctResp(logical(targetLoc(:,1))))...
-            mean(correctResp(logical(targetLoc(:,2))))]; hold on;
+            subplot(2,3,6);
+            if validAndCorrectSide
+                y=[mean(correctResp(logical(targetLoc(:,1) & logical(validity) & logical(correctSide))))...
+                    mean(correctResp(logical(targetLoc(:,2) & logical(correctSide) & logical(validity))))]; hold on;
+            else y=[mean(correctResp(logical(targetLoc(:,1)))) mean(correctResp(logical(targetLoc(:,2))))]; hold on;
+            end
             bar(1,y(1),.5,'FaceColor',[0 0 .8]);%, 'FaceAlpha',.5);
             bar(2,y(2),.5,'FaceColor',[.8 0 0]);%, 'FaceAlpha',.5);
             title('Location');
             ylabel('Propotion correct');
             set(gca,'XTick',[1 2]);
             set(gca,'XTickLabel',{'Left Target' 'Right Target'});
-            ylim([0 1])
+            ylim([.4 1]); grid on;
 
 
         case 'train3'
             figure(); hold on;
             plot(1:sum(rej_behav_trials), tiltsLvlV, 'color',[0 .8 0], 'LineWidth',2);
             plot(1:sum(rej_behav_trials), tiltsLvlH, 'color',[.8 .5 0], 'LineWidth',2);
-            ylabel('Tilt levels (?)'); xlabel('Trial number'); grid;
+            ylabel('Tilt levels (in degrees of visual angle)'); xlabel('Trial number');
             legend('Vertical grating','Horizontal grating');
-            xlim([-1 sum(rej_behav_trials)+1]);
+            xlim([-1 sum(rej_behav_trials)+1]); grid on;
+            tiltLvls=[mean(tiltsLvlV(end-10:end,:),1) mean(tiltsLvlH(end-10:end,:),1)];
+            title(sprintf('Final tilt levels:\nVert=%.2f, Hori=%.2f',...
+                tiltLvls));
+            disp('aa');
+            
 
     end
 end

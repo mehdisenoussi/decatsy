@@ -44,7 +44,7 @@ function [condition, cueStimAsso, leftResps, rightResps, responseKeys,...
         responseKeys=[leftResps rightResps]; 
     end
 
-    if strcmp(expPhase,'train4') || strcmp(expPhase,'main'); validRatio=.7;
+    if strcmp(expPhase,'train4') || strcmp(expPhase,'main'); validRatio=.75;
     else validRatio=1; end
 
     if strcmp(expPhase,'train1') || strcmp(expPhase,'train2'); stims.contrast=1;
