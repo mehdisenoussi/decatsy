@@ -1,7 +1,10 @@
 %% Simple script for simple behavioral analysis and monitoring of observer's performances
 
-function []=decatsy_behavioral_simpleAnalysis(subject_ind, arg2, validAndCorrectSide)
-    study_dir='./'; subject_ind=num2str(subject_ind);
+function []=decatsy_behavioral_simpleAnalysis(subject_ind, arg2,...
+    validAndCorrectSide, study_dir)
+    addpath('./decatsy_funs/');
+    if ~exist('study_dir'); study_dir='./'; end
+    subject_ind=num2str(subject_ind);
     results_dir=[study_dir 'Results/subj' subject_ind '/'];
     if ~exist('validAndCorrectSide'); validAndCorrectSide=0; end
     if length(arg2)<=6
@@ -234,7 +237,67 @@ function []=decatsy_behavioral_simpleAnalysis(subject_ind, arg2, validAndCorrect
             set(gca,'XTick',[1 2]);
             set(gca,'XTickLabel',{'Left Target' 'Right Target'});
             ylim([.4 1]); grid on;
+            
+            
+            if validAndCorrectSide; tempLogical=correctSide;
+            else tempLogical=ones(size(correctSide)); end
+            y1=[mean(correctResp(logical(tempLogical & targetLoc(:,1) & validity)))...
+                mean(correctResp(logical(tempLogical & targetLoc(:,1) & ~validity)))...
+                 mean(correctResp(logical(tempLogical & targetLoc(:,2) & validity)))...
+                 mean(correctResp(logical(tempLogical & targetLoc(:,2) & ~validity)))];
 
+            y2=[mean(correctResp(logical(tempLogical & targetLoc(:,1) & validity & strcmp(targetFeat,'hori'))))...
+                mean(correctResp(logical(tempLogical & targetLoc(:,1) & ~validity & strcmp(targetFeat,'hori'))))...
+                mean(correctResp(logical(tempLogical & targetLoc(:,2) & validity & strcmp(targetFeat,'hori'))))...
+                mean(correctResp(logical(tempLogical & targetLoc(:,2) & ~validity & strcmp(targetFeat,'hori'))))...
+                mean(correctResp(logical(tempLogical & targetLoc(:,1) & validity & strcmp(targetFeat,'vert'))))...
+                mean(correctResp(logical(tempLogical & targetLoc(:,1) & ~validity & strcmp(targetFeat,'vert'))))...
+                mean(correctResp(logical(tempLogical & targetLoc(:,2) & validity & strcmp(targetFeat,'vert'))))...
+                mean(correctResp(logical(tempLogical & targetLoc(:,2) & ~validity & strcmp(targetFeat,'vert'))))];
+
+            ntpb=[sum(logical(tempLogical & targetLoc(:,1) & validity & strcmp(targetFeat,'hori')))...
+                sum(logical(tempLogical & targetLoc(:,1) & ~validity & strcmp(targetFeat,'hori')))...
+                sum(logical(tempLogical & targetLoc(:,2) & validity & strcmp(targetFeat,'hori')))...
+                sum(logical(tempLogical & targetLoc(:,2) & ~validity & strcmp(targetFeat,'hori')))...
+                sum(logical(tempLogical & targetLoc(:,1) & validity & strcmp(targetFeat,'vert')))...
+                sum(logical(tempLogical & targetLoc(:,1) & ~validity & strcmp(targetFeat,'vert')))...
+                sum(logical(tempLogical & targetLoc(:,2) & validity & strcmp(targetFeat,'vert')))...
+                sum(logical(tempLogical & targetLoc(:,2) & ~validity & strcmp(targetFeat,'vert')))];
+            
+            %disp(sprintf('Number of trials per bar in left plot %i %i %i %i %i %i %i %i', ntpb));
+            
+            figure();
+            subplot(1,2,1); hold on;
+            bar(1,y1(1),.5,'FaceColor',[0 0 0]);%, 'FaceAlpha',.5);
+            bar(1.5,y1(2),.5,'FaceColor',[.5 .5 .5]);%, 'FaceAlpha',.5);
+            bar(2.5,y1(3),.5,'FaceColor',[0 0 0]);%, 'FaceAlpha',.5);
+            bar(3,y1(4),.5,'FaceColor',[.5 .5 .5]);%, 'FaceAlpha',.5);
+            title('Accuracy by Validity and target Location'); ylabel('Propotion correct'); set(gca,'XTick',[1 1.5 2.5 3]);
+            set(gca,'XTickLabel',{'Left Valid' 'Left Invalid' 'Right Valid' 'Right Invalid' });
+            ylim([.4 1]); grid on;
+            
+            subplot(1,2,2); hold on;
+            bar([1 1.5 2.5 3 4 4.5 5.5 6], y2', 1);
+            title(sprintf(['Accuracy by Side, target Orientation and target Location\n'...
+                 'Number of trials: top of each bar']));
+            ylabel('Propotion correct'); ylim([.4 1]); grid on;
+            set(gca,'XTick',[1 1.5 2.5 3 4 4.5 5.5 6]); set(gca,'XTickLabel','');
+            xlabetxt = {'Hori Valid Left' 'Hori Invalid Left'...
+                'Hori Valid Right' 'Hori Invalid Right' 'Vert Valid Left'...
+                'Vert Invalid Left' 'Vert Valid Right' 'Vert Invalid Left'};
+            ypos = min(ylim)*.99;
+            text([1 1.5 2.5 3 4 4.5 5.5 6],repmat(ypos,8,1), ...
+                 xlabetxt','horizontalalignment','right','Rotation',45,'FontSize',10)
+            text(.55,77.5,'A','FontSize',10)
+            
+            %bar(y,'group')
+            xt=[1 1.5 2.5 3 4 4.5 5.5 6]-0.2;
+            yt=y2*1.01;
+            for foo=1:8
+                ytxt=num2str(ntpb(foo),'%i');
+                text(xt(foo),yt(foo),ytxt,'fontsize',10,'fontweight','bold')
+            end
+            
 
         case 'train3'
             figure(); hold on;
