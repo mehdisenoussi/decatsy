@@ -118,9 +118,8 @@ function [tiltLvls, tiltHistory] = decatsy_core(s_ind, subjGroup, session, condi
                         Beeper('low');
                         if mainvar.EEG; sendEventCode(object,port, mainvar.eFixBreak); end
                         break;
-                    end                
+                    end
                 end
-                Screen('DrawLines', window, allCoords,lineWidthPix,[1 1 1],[xCenter yCenter],0);
             end
             if ~fixation; break; end
 

@@ -1,9 +1,11 @@
 addpath('./decatsy_funs/');
-subject_ind=3; sess=1;
-indir='./decatsy_data/';
-subj_behavdata_dir=[subj_dir 'log_files/'];
-log_dir=sprintf('%ssubj%i/all_logs/s%ipart%i_txt/',subj_behavdata_dir,...
-    subject_ind, subject_ind, sess);
+s_ind=4; sess=1;
+%indir='./decatsy_data/';
+indir='/Volumes/datas/postphd/decatsy/data/';
+subj_dir=[indir sprintf('subj%i/',s_ind)];
+log_dir=[subj_dir 'log_files/'];
+% log_dir=[subj_behavdata_dir sprintf('subj%i/all_logs/s%ipart%i_txt/',subj_behavdata_dir,...
+%     subject_ind, subject_ind, sess);
 
 s_ind_all='s_ind_all';
 subjGroup_all='subjGroup_all';
@@ -63,7 +65,7 @@ else
     end
 end
 
-all_alls= [s_ind_all subjGroup_all subjGroup_all expPhase_all condition_all block_all ...
+all_alls= [s_ind_all subjGroup_all session_all expPhase_all condition_all block_all ...
 triali_all respTime_all respKey_all correctResp_all correctSide_all ...
 correctTilt_all precue_all cue_all validity_all tiltsLvlV_all tiltsLvlH_all ...
 tiltStepsV_all tiltStepsH_all gratingOriL_all gratingOriR_all];
