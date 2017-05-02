@@ -7,9 +7,6 @@ function [respTrials, respFixCol] = process_resp(respTrials, trials, triali,...
             % then which orientation the cue is associated with
             % then where this orientation was (left or right)
             targetFeat=cueStimAsso(logical(trials.cue(triali))+1);
-            if strcmp(targetFeat,stimFeat(1)); featind=1;
-            elseif strcmp(targetFeat,stimFeat(2)); featind=2; end
-            
             if strcmp(targetFeat, 'hori')
                 if trials.feature(1,triali)==90;targetPos='left';
                 else targetPos='right'; end
@@ -53,14 +50,17 @@ function [respTrials, respFixCol] = process_resp(respTrials, trials, triali,...
         % if the observer responded on the correct side, check if reported tilt is correct
         if respTrials(triali).correctSide
             if strcmp(targetPos, 'left')
-                switch trials.tiltDir(featind,triali)
+                if strcmp(targetFeat, stimFeat(1)); featind=1;
+                elseif strcmp(targetFeat, stimFeat(2)); featind=2; end
+
+                switch trials.tiltDir(1,triali)
                     case -1
                         respTrials(triali).correctTilt=strcmp(responseKey,leftResps(1));
                     case 1
                         respTrials(triali).correctTilt=strcmp(responseKey,leftResps(2));
                 end
             elseif strcmp(targetPos, 'right')
-                switch trials.tiltDir(featind,triali)
+                switch trials.tiltDir(2,triali)
                     case -1
                         respTrials(triali).correctTilt=strcmp(responseKey,rightResps(1));
                     case 1

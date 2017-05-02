@@ -1,16 +1,13 @@
 % Creates, shuffles and returns trial sequence parameters
 function trials = make_trials_struct(n_trials, cueOrientations, validRatio, timing)
 
-    trials.feature=repmat([0 90;0 90;90 0;90 0]',1,ceil((n_trials/4)));
-    % tilt is randomly the same on the two gratings
-%     trials.tiltDir=[Shuffle(repmat([-1 1],1, ceil((n_trials/2))));...
-%         Shuffle(repmat([-1 1],1,ceil(n_trials/2)))];
+    %trials.feature=repmat([0 90;0 90;90 0;90 0]',1,ceil((n_trials/4)));
     trials.tiltDir=...
-        [repmat([1 1 -1 -1 1 1 -1 -1 1 1 -1 -1 1 1 -1 -1],1,ceil((n_trials/16)));...
-        repmat([1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1],1,ceil(n_trials/16))];
-    trials.ITI=timing.ITIs(randi(11,1,n_trials));
+        [repmat([1 1 -1 -1 1 1 -1 -1 1 -1 1 -1 1 -1 1 -1],1,ceil((n_trials/16)));...
+        repmat([1 -1 1 -1 1 -1 1 -1 1 1 -1 -1 1 1 -1 -1],1,ceil(n_trials/16))];
+    trials.ITI=timing.ITIs(randi(11,1,n_trials));   
     
-    trials.validity=zeros(1, n_trials);
+    trials.validity = zeros(1, n_trials);
     trials.validity(1:round(validRatio*n_trials))=1;
     trials.precue=repmat(cueOrientations, 1, ceil(n_trials/2));
     trials.cue=repmat(cueOrientations, 1, ceil(n_trials/2));

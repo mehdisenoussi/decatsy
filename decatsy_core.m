@@ -182,8 +182,8 @@ function [tiltLvls, tiltHistory] = decatsy_core(s_ind, subjGroup, session, condi
             firstPass=1; tempT=GetSecs;
             while GetSecs < (tempT+timing.stimPres-(ifi/2))
                 if trials.feature(1,triali)
-                    gratingOri=[trials.feature(1,triali)+(tiltLvls(2)*trials.tiltDir(1,triali)),...
-                        trials.feature(2,triali)+(tiltLvls(1)*trials.tiltDir(2,triali))];
+                    gratingOri=[trials.feature(1,triali)+(tiltLvls(2)*trials.tiltDir(2,triali)),...
+                        trials.feature(2,triali)+(tiltLvls(1)*trials.tiltDir(1,triali))];
                 else
                     gratingOri=[trials.feature(1,triali)+(tiltLvls(1)*trials.tiltDir(1,triali)),...
                         trials.feature(2,triali)+(tiltLvls(2)*trials.tiltDir(2,triali))];
