@@ -46,9 +46,9 @@ function [tiltLvls, tiltHistory] = decatsy_core(s_ind, subjGroup, session, condi
     grayscaleImageMatrixL=make_gratingMat(diffWandG,grey,pixindeg,...
                             0,stims.periodPerDegree,stims.sizeInDeg);
     grayscaleImageMatrixR=make_gratingMat(diffWandG,grey,pixindeg,...
-                            0,stims.periodPerDegree,stims.sizeInDeg);
+                            2,stims.periodPerDegree,stims.sizeInDeg);
     texGabL=Screen('MakeTexture', window, grayscaleImageMatrixL);
-    texGabR=Screen('MakeTexture', window, grayscaleImageMatrixR);
+    texGabR=Screen('MakeTexture', window, grayscaleImageMatrixR,[],[],[],[]);
 
     % Specify gratings locations
     coordclg=[stims.xDistFix/pixindeg,stims.yDistFix/pixindeg];
@@ -188,11 +188,11 @@ function [tiltLvls, tiltHistory] = decatsy_core(s_ind, subjGroup, session, condi
                     gratingOri=[trials.feature(1,triali)+(tiltLvls(1)*trials.tiltDir(1,triali)),...
                         trials.feature(2,triali)+(tiltLvls(2)*trials.tiltDir(2,triali))];
                 end
-                Screen('DrawTextures', window, texGabL, [], stims.gabLocL,...
+                Screen('DrawTexture', window, texGabL, [], stims.gabLocL,...
                     gratingOri(1), filterMode, stims.contrast);
-                Screen('DrawTextures', window, texGabR, [], stims.gabLocR,...
-                    gratingOri(2), filterMode, stims.contrast);
-                Screen('DrawTextures', window, cueTexture, [], dstRect, trials.cue(triali), filterMode);
+                Screen('DrawTexture', window, texGabR, [], stims.gabLocR,...
+                   [], filterMode, stims.contrast);
+                Screen('DrawTexture', window, cueTexture, [], dstRect, trials.cue(triali), filterMode);
                 Screen('DrawLines', window, allCoords,lineWidthPix,[1 1 1],[xCenter yCenter],0);
                 Screen('Flip', window);
                 if firstPass
@@ -218,7 +218,7 @@ function [tiltLvls, tiltHistory] = decatsy_core(s_ind, subjGroup, session, condi
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             firstPass=1; tempT=GetSecs;
             while GetSecs < (tempT+timing.ISI2-(ifi/2))
-                Screen('DrawTextures', window, cueTexture, [], dstRect, trials.cue(triali), filterMode);
+                Screen('DrawTexture', window, cueTexture, [], dstRect, trials.cue(triali), filterMode);
                 Screen('DrawLines', window, allCoords,lineWidthPix,[1 1 1],[xCenter yCenter],0);
                 Screen('Flip',window);
                 if mainvar.EL

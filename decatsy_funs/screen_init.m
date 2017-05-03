@@ -23,7 +23,7 @@ function [window, pixindeg, diffWandG, grey, xCenter, yCenter, ifi, screenYpixel
     %use [] for full screen or [0,0,800,400] for a smaller screen
     if fullscreen; screensize=[]; else screensize=[0 0 800 400]; end;
     [window, windowRect] = PsychImaging('OpenWindow', screenNumber, grey, screensize);
-    % [window, windowRect] = Screen('OpenWindow',screenNumber, grey, screensize);
+    %[window, windowRect] = Screen('OpenWindow',screenNumber, grey, screensize);
 
     % Get the size of the on screen window in pixels and cm
     [screenXpixels, screenYpixels] = Screen('WindowSize', window);
