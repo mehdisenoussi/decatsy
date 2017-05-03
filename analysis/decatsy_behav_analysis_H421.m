@@ -4,7 +4,7 @@
 %
 %   sess: session number
 %
-%   arg2: this argument can take several values
+%   arg: this argument can take several values
 %       - nothing:  it will analyze the subj._sess._all.txt file and plot the
 %                   results for the entire session (if you've generated this
 %                   file using decatsy_concat_logfiles_fun)
@@ -37,8 +37,8 @@ function []=decatsy_behav_analysis_H421(s_num, sess, arg, validAndCorrectSide)
         allblocksEEGsess=1;
         
     elseif length(arg)<=6
-        experiment_phase=arg2;
-        listing = dir([results_dir '*.txt']); file_found=0; file_count=1;
+        experiment_phase=arg;
+        listing = dir([sess_dir 'train/' '*.txt']); file_found=0; file_count=1;
         if isempty(listing)
             fprintf('NO FILES IN DIRECTORY'); return;
         else
@@ -46,7 +46,7 @@ function []=decatsy_behav_analysis_H421(s_num, sess, arg, validAndCorrectSide)
                 [s_ind, subjGroup, session, expPhase, condition, block, triali, respTime,...
                 respKey, correctResp, correctSide, correctTilt, precue, cue, validity,...
                 tiltsLvlV, tiltsLvlH, tiltStepsV, tiltStepsH, gratingOriL, gratingOriR] = ...
-                textread([results_dir listing(file_count).name],...%'Subj-50-0170201T140609.txt'],...
+                textread([results_dir listing(file_count).name],...
                 '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s');
                 file_found=strcmp(experiment_phase, expPhase(2));
                 if ~file_found && file_count<length(listing); file_count=file_count+1;

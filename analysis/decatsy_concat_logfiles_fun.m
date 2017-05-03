@@ -1,7 +1,7 @@
 function []=decatsy_concat_logfiles_fun(s_num, sess)
 
     subj_dir=sprintf('./decatsy_data/subj%i/log_files/',s_num);
-    sess_dir=[subj_dir sprintf('sess%i/',sess)];
+    sess_dir=[subj_dir sprintf('sess%i/eeg/',sess)];
    
     s_ind_all='s_ind_all';
     subjGroup_all='subjGroup_all';
