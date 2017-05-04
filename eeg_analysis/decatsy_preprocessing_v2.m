@@ -4,12 +4,15 @@ chanfile='63ElecsDescartes.elp';
 eeglab; close;
 
 %% Read EEG data in dir
-s_ind=3; session=1;
+s_ind=5; session=1;
 
-indir='~/decatsy/eeg_data/Results/';
+% this needs to be fixed so that the file architecture on my laptop is the
+% same as the one we decided and described in decatsy_file_architecture
+indir='./decatsy_data/';
 subj_dir=[indir sprintf('subj%i/',s_ind)];
-TMPEEG = pop_loadset('filename',sprintf('s%i_session%i.set',s_ind,session),...
-    'filepath', subj_dir);
+subj_eeg_dir=[subj_dir 'eeg_files/'];
+TMPEEG = pop_loadset('filename',sprintf('subj%i_sess%i.set',s_ind,session),...
+    'filepath', subj_eeg_dir);
 
 %% Electrode Replace
 rplc=0; channel2rplc = [];
@@ -23,43 +26,42 @@ TMPEEG=pop_eegfiltnew(TMPEEG,48,52,[],1);
 TMPEEG=pop_eegfiltnew(TMPEEG,.1,[]);
 
 %% Epoching and trial rejections
-epochEEG = pop_epoch( TMPEEG, { 'S 10' },[0 3.67], 'newname', 'epoch data', 'epochinfo', 'yes');
+epochEEG = pop_epoch( TMPEEG, { 'S 10' },[0 4], 'newname', 'epoch data', 'epochinfo', 'yes');
 
 % reject trials not kept in the log
 subj_behavdata_dir=[subj_dir 'log_files/'];
 load([subj_behavdata_dir sprintf('subj%i_sess%i_behav_trials_to_rej.mat',s_ind,session)]);
 if size(rej_behav_trials,1)~=size(epochEEG.data,3)
-    fprintf('INCONSISTENCY BETWEEN NUMBER OF EEG AND LOG TRIALS !!!!!')
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % how do we exit a script ?? %
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
-else
-    epochEEG=pop_rejepoch(epochEEG, ~rej_behav_trials);
+    fprintf('INCONSISTENCY BETWEEN NUMBER OF EEG AND LOG TRIALS !!!!!');
+    return;
+else epochEEG=pop_rejepoch(epochEEG, ~rej_behav_trials, 0);
 end
 
 epochEEG = eeg_checkset( epochEEG );
 epochEEG = pop_rmbase( epochEEG, [0 600]);
 
 % manual trial rejection
-if ~exist([subj_dir sprintf('subj%i_sess%i_behav_trials_to_rej.mat',s_ind,session)])
+eeg_trials_torej_file=sprintf('%ss%i_sess%i_eeg_trials_to_rej.mat',subj_eeg_dir, s_ind, session);
+if exist(eeg_trials_torej_file, 'file')
+    % load the manually rejected trials
+    load(eeg_trials_torej_file);
 else
-    eegtrialrej=eegplot(epochEEG);
-    save([],'eegtrialrej')
+    % or if they dont exist do the manual rejection
+    eegplot(epochEEG.data, 'srate',256, 'eloc_file', chanfile,'limits',[-600 3070],...
+        'command', 'close', 'events', epochEEG.event);
+    waitfor(gcf);
+    eegtrialrej=sort(ceil((TMPREJ(:,1)+1)./size(epochEEG.data,2))');
+    save(eeg_trials_torej_file, 'eegtrialrej')
 end
-%trial rejected by eye check
-%subj3-sess1
-% rejtrials_man=[1 11 54 104 106 119 133 192 193 199 211 213 214 215 226 229 233 234 238 239 249 250 303 305 317 321 346 402 449 456 472 477 483 549 556 576 603 628 632 642 651 661 670 673 680 692 718 720 721 734 768];
-%subj3-sess2
-rejtrials_man=[5 6 14 18 23 26 27 64 65 69 87 92 98 104 109 124 133 135 144 146 151 169 176 188 192 199 201 203 207 212 216 238 241 246 262 272 276 278 279 285 288 289 294 295 297 300 306 319 323 340 341 345 352 365 368 388 397 406 437 462 467 492 494 496 526 527 530 532 538 539 558 562 567 568 571 577 581 582 583 590 596 598 604 616 644 645 653 654 655 657 666 699 702 703 707 708 718 725 735 747 755 770];
-epochEEGclean = pop_rejepoch( epochEEG, eegtrialrej,0);
+
+epochEEGclean=pop_rejepoch(epochEEG, eegtrialrej, 0);
 
 epochEEG = pop_saveset(epochEEGclean,'filename',...
     sprintf('subj%i_session%i_clean.set',s_ind,session),...
-    'filepath', subj_dir);
-% clear('epochEEG')
+    'filepath', subj_eeg_dir);
 
-
+% datt=epochEEG.data;
+% save('/Users/mehdisenoussi/decatsy/decatsy_data/subj3/eeg_files/subj3_sess2_dataclean.mat','datt')
 
 
 

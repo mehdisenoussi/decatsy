@@ -1,4 +1,3 @@
-% Est-ce que ca marche ???
 % Core script of DECATSY experiment
 % This script mainly loops for the different trials, processes the
 % response, sends the EEG and EL triggers and writes in the log file.
@@ -43,12 +42,7 @@ function [tiltLvls, tiltHistory] = decatsy_core(s_ind, subjGroup, session, condi
 
 
     %% Grating
-    grayscaleImageMatrixL=make_gratingMat(diffWandG,grey,pixindeg,...
-                            0,stims.periodPerDegree,stims.sizeInDeg);
-    grayscaleImageMatrixR=make_gratingMat(diffWandG,grey,pixindeg,...
-                            2,stims.periodPerDegree,stims.sizeInDeg);
-    texGabL=Screen('MakeTexture', window, grayscaleImageMatrixL);
-    texGabR=Screen('MakeTexture', window, grayscaleImageMatrixR,[],[],[],[]);
+    % grating stimuli and texture are done at each trial
 
     % Specify gratings locations
     coordclg=[stims.xDistFix/pixindeg,stims.yDistFix/pixindeg];
@@ -90,6 +84,23 @@ function [tiltLvls, tiltHistory] = decatsy_core(s_ind, subjGroup, session, condi
     Screen('Flip', window);
 
     while triali <= n_trials
+        % Check whether hori-left & vert-right or the inverse, get the
+        % angle of the grating for each side and create the 2 textures
+        if trials.feature(1,triali)
+            gratingOri=[trials.feature(1,triali)+(tiltLvls(2)*trials.tiltDir(2,triali)),...
+                trials.feature(2,triali)+(tiltLvls(1)*trials.tiltDir(1,triali))];
+        else
+            gratingOri=[trials.feature(1,triali)+(tiltLvls(1)*trials.tiltDir(1,triali)),...
+                trials.feature(2,triali)+(tiltLvls(2)*trials.tiltDir(2,triali))];
+        end
+        
+        grayscaleImageMatrixL=make_gratingMat(diffWandG,grey,pixindeg,...
+                            gratingOri(1),stims.periodPerDegree,stims.sizeInDeg);
+        grayscaleImageMatrixR=make_gratingMat(diffWandG,grey,pixindeg,...
+                            gratingOri(2),stims.periodPerDegree,stims.sizeInDeg);
+        texGabL=Screen('MakeTexture', window, grayscaleImageMatrixL);
+        texGabR=Screen('MakeTexture', window, grayscaleImageMatrixR);
+        
         continueTrial=1;
         while continueTrial
             % start the trial when the eyetracker is recording and the subject 
@@ -181,15 +192,8 @@ function [tiltLvls, tiltHistory] = decatsy_core(s_ind, subjGroup, session, condi
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             firstPass=1; tempT=GetSecs;
             while GetSecs < (tempT+timing.stimPres-(ifi/2))
-                if trials.feature(1,triali)
-                    gratingOri=[trials.feature(1,triali)+(tiltLvls(2)*trials.tiltDir(2,triali)),...
-                        trials.feature(2,triali)+(tiltLvls(1)*trials.tiltDir(1,triali))];
-                else
-                    gratingOri=[trials.feature(1,triali)+(tiltLvls(1)*trials.tiltDir(1,triali)),...
-                        trials.feature(2,triali)+(tiltLvls(2)*trials.tiltDir(2,triali))];
-                end
                 Screen('DrawTexture', window, texGabL, [], stims.gabLocL,...
-                    gratingOri(1), filterMode, stims.contrast);
+                    [], filterMode, stims.contrast);
                 Screen('DrawTexture', window, texGabR, [], stims.gabLocR,...
                    [], filterMode, stims.contrast);
                 Screen('DrawTexture', window, cueTexture, [], dstRect, trials.cue(triali), filterMode);
@@ -331,6 +335,12 @@ function [tiltLvls, tiltHistory] = decatsy_core(s_ind, subjGroup, session, condi
                     respTrials(triali).targetPos=respTrials(triali-1).targetPos;
                     respTrials(triali).correctSide=respTrials(triali-1).correctSide;
                     respTrials(triali).correctTilt=respTrials(triali-1).correctTilt;
+                else
+                    respTrials(triali).correctResp=0; respTrials(triali).respTime=0;
+                    respTrials(triali).respKey='-'; respTrials(triali).correctSide=0;
+                    respTrials(triali).correctTilt=0;
+                    respTrials(triali).targetFeat='noresp';
+                    respTrials(triali).targetPos='noresp';
                 end
             end
 
