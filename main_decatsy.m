@@ -86,18 +86,19 @@ function [] = main_decatsy(s_ind, subjGroup, session, expPhase, block,...
     eyeFixRad=1.5; % radius of allowable eye movement in pixels
     rad = eyeFixRad/pixindeg;
     if mainvar.EL
-        eyeFileNum=1;
-        eyeFile = sprintf('%s_%s_%i', num2str(s_ind),datestr(now, 'ddmm'),eyeFileNum); %
-        while exist(eyeFile, 'file')
-            eyeFileNum=eyeFileNum+1;
-            eyeFile = sprintf('%s_%s_%i', num2str(s_ind),datestr(now, 'ddmm'),eyeFileNum); %
-        end
+%         eyeFileNum=1;
+%         eyeFile = sprintf('%i%s_%i', s_ind, datestr(now, 'ddmm'), eyeFileNum); %
+%         while exist(eyeFile, 'file')
+%             eyeFileNum=eyeFileNum+1;
+%             eyeFile = sprintf('%s_%s_%i', num2str(s_ind),datestr(now, 'ddmm'),eyeFileNum); %
+%         end
         % Initialize eye tracker
+        eyeFile = sprintf('%s%s%i', num2str(s_ind),datestr(now, 'ddmm'),block);
         [el, exitFlag] = rd_eyeLink('eyestart', window, eyeFile);
         if exitFlag; return; end
         % Calibrate eye tracker
         [cal, exitFlag] = rd_eyeLink('calibrate', window, el);
-        if exitFlag; return; end   
+        if exitFlag; return; end
     else el=[];
     end
 
@@ -138,7 +139,7 @@ function [] = main_decatsy(s_ind, subjGroup, session, expPhase, block,...
             timing.ISI2=.900; timing.responseTime=1.000; timing.ITIs=.400:.1:1.400;
             n_trials=128; staircase=1;
         case {'train4', 'main'} % phase 4 of training and main task: real conditions with staircased tilt
-            timing.beginTrial=.600; timing.precue=.120; timing.ISI1=2; timing.stimPres=2;
+            timing.beginTrial=.600; timing.precue=.120; timing.ISI1=2; timing.stimPres=.060;
             timing.ISI2=.900; timing.responseTime=1.000; timing.ITIs=.400:.1:1.400; 
             n_trials=64;
             load(sprintf('%s/subj%i_cond_%s_staircase_tiltlvls.mat',subjFolder,s_ind,condition));
@@ -173,7 +174,7 @@ function [] = main_decatsy(s_ind, subjGroup, session, expPhase, block,...
     end
 
     
-    %% Wrap up: Save the eye data, shut down the eye tracker and close the log file
+    %% Wrap up: Save the eye data, shut down eye tracker and close log file
     if mainvar.EL
         if ~exist(eyeDataDir,'dir')
             mkdir(eyeDataDir)

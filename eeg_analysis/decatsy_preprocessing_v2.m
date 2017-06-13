@@ -26,13 +26,15 @@ TMPEEG=pop_eegfiltnew(TMPEEG,48,52,[],1);
 TMPEEG=pop_eegfiltnew(TMPEEG,.1,[]);
 
 %% Epoching and trial rejections
-epochEEG = pop_epoch( TMPEEG, { 'S 10' },[0 4], 'newname', 'epoch data', 'epochinfo', 'yes');
+epochEEG = pop_epoch( TMPEEG, { 'S 10' },[0 4.670], 'newname', 'epoch data', 'epochinfo', 'yes');
+
+if s_num==5 && sess==2; epochEEG=pop_rejepoch(epochEEG, [498], 0); end
 
 % reject trials not kept in the log
 subj_behavdata_dir=[subj_dir 'log_files/'];
 load([subj_behavdata_dir sprintf('subj%i_sess%i_behav_trials_to_rej.mat',s_ind,session)]);
 if size(rej_behav_trials,1)~=size(epochEEG.data,3)
-    fprintf('INCONSISTENCY BETWEEN NUMBER OF EEG AND LOG TRIALS !!!!!');
+    fprintf('INCONSISTENCY BETWEEN NUMBER OF EEG AND LOG TRIALS !!!!!\n');
     return;
 else epochEEG=pop_rejepoch(epochEEG, ~rej_behav_trials, 0);
 end

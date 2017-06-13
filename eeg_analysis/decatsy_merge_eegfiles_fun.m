@@ -14,9 +14,19 @@ function [] = decatsy_merge_eegfiles_fun(s_num, sess)
     listing = dir([subj_eegsess_dir '*.vhdr']);
     if isempty(listing); fprintf('NO FILES IN DIRECTORY'); return;
     else
+        blocknums=zeros(1,size(listing,1));
         for part=1:size(listing,1)
-            tmp=pop_loadbv(subj_eegsess_dir, sprintf(listing(part).name));
-            if part==1; TMPEEG=tmp;
+            temp=strsplit(listing(part).name, {'-','.'});
+            blocknums(part)=str2num(temp{2});
+        end
+        rootfilename=temp{1};
+        blocknums=sort(blocknums);
+        for block=blocknums
+            filename=sprintf('%s-%i.vhdr',rootfilename,block);
+            fprintf(sprintf('loaded file: %s\n',filename));
+            %fprintf(sprintf('%s%s',subj_eegsess_dir,filename);
+            tmp=pop_loadbv(subj_eegsess_dir, filename);
+            if block==1; TMPEEG=tmp;
             else TMPEEG=pop_mergeset(TMPEEG, tmp,0);
             end
         end
