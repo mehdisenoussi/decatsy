@@ -23,7 +23,7 @@ TMPEEG = pop_rmbase(TMPEEG, [], 1:size(TMPEEG.data,2));
 % Remove electrical line noise
 TMPEEG=pop_eegfiltnew(TMPEEG,48,52,[],1);
 % remove very slow drifts
-TMPEEG=pop_eegfiltnew(TMPEEG,.1,[]);
+% TMPEEG=pop_eegfiltnew(TMPEEG,.1,[]);
 
 %% Epoching and trial rejections
 epochEEG = pop_epoch( TMPEEG, { 'S 10' },[0 4.670], 'newname', 'epoch data', 'epochinfo', 'yes');
