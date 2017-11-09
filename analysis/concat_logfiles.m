@@ -1,11 +1,13 @@
 addpath('./decatsy_funs/');
-s_ind=4; sess=1;
-%indir='./decatsy_data/';
-indir='/Volumes/datas/postphd/decatsy/data/';
-subj_dir=[indir sprintf('subj%i/',s_ind)];
-log_dir=[subj_dir 'log_files/'];
+s_ind=2; sess=2;
+indir='./decatsy_data/';
+%indir='C:/Users/Laurie/Documents/MATLAB/decatsy-master/decatsy_data/';
+subj_dir=[indir 'subj' num2str(s_ind)];
+log_dir=[subj_dir '/log_files/sess' num2str(sess) '/eeg/'];
 % log_dir=[subj_behavdata_dir sprintf('subj%i/all_logs/s%ipart%i_txt/',subj_behavdata_dir,...
 %     subject_ind, subject_ind, sess);
+save_dir=[subj_dir '/log_files/'];
+filename=[save_dir 'subj' num2str(s_ind) '_sess' num2str(sess) '_all.txt'];
 
 s_ind_all='s_ind_all';
 subjGroup_all='subjGroup_all';
@@ -70,8 +72,6 @@ triali_all respTime_all respKey_all correctResp_all correctSide_all ...
 correctTilt_all precue_all cue_all validity_all tiltsLvlV_all tiltsLvlH_all ...
 tiltStepsV_all tiltStepsH_all gratingOriL_all gratingOriR_all];
 
-
-filename=[log_dir sprintf('subj%i_sess%i_all.txt',subject_ind,sess)];
 fid=fopen(filename,'w');
 for i=1:size(all_alls,1)
     fprintf(fid, '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n',...

@@ -1,28 +1,29 @@
 %% 
 function [] = decatsy_merge_eegfiles_fun(s_num, sess)
-    addpath('/Users/mehdisenoussi/matlab/eeglab13_6_5b/');
+    %addpath('/Users/mehdisenoussi/matlab/eeglab13_6_5b/');
     chanfile='63ElecsDescartes.elp';
     eeglab; close;
-    addpath(genpath('/Users/mehdisenoussi/matlab/eeglab13_6_5b/plugins/bva-io-master/'));
+    %addpath(genpath('/Users/mehdisenoussi/matlab/eeglab13_6_5b/plugins/bva-io-master/'));
 
     dwnsmpl=256;
     %% read EEG data in subject directory and merge the datasets
     indir='./decatsy_data/';
     %indir='/Volumes/datas/postphd/decatsy/data/';
-    subj_eeg_dir=[indir sprintf('subj%i/eeg_files/',s_num)];
-    subj_eegsess_dir=[subj_eeg_dir sprintf('sess%i/',sess)];
+    subj_eeg_dir=[indir 'subj' num2str(s_num) '/eeg_files/'];
+    subj_eegsess_dir=[subj_eeg_dir 'sess' num2str(sess) '/'];
     listing = dir([subj_eegsess_dir '*.vhdr']);
     if isempty(listing); fprintf('NO FILES IN DIRECTORY'); return;
     else
         blocknums=zeros(1,size(listing,1));
         for part=1:size(listing,1)
             temp=strsplit(listing(part).name, {'-','.'});
-            blocknums(part)=str2num(temp{2});
+            blocknums(part)=str2num(temp{3});
         end
         rootfilename=temp{1};
+        sessname=temp{2};
         blocknums=sort(blocknums);
         for block=blocknums
-            filename=sprintf('%s-%i.vhdr',rootfilename,block);
+            filename=sprintf('%s-%s-%i.vhdr',rootfilename,sessname,block);
             fprintf(sprintf('loaded file: %s\n',filename));
             %fprintf(sprintf('%s%s',subj_eegsess_dir,filename);
             tmp=pop_loadbv(subj_eegsess_dir, filename);

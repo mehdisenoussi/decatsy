@@ -16,7 +16,7 @@
 %   validAndCorrectSide: 0 or 1, whether to use trials which were valid
 %                        and on the correct side
 
-function []=decatsy_behav_analysis_H421(s_num, sess, arg, validAndCorrectSide)
+function [dprime_valid,dprime_invalid,RTV,RTI]=decatsy_behav_analysis_H421(s_num, sess, arg, validAndCorrectSide)
     addpath('./decatsy_funs/');
     subj_dir=sprintf('./decatsy_data/subj%i/log_files/',s_num);
     sess_dir=[subj_dir sprintf('sess%i/',sess)];
@@ -201,7 +201,9 @@ function []=decatsy_behav_analysis_H421(s_num, sess, arg, validAndCorrectSide)
                     legend('valid','invalid','Location','NorthWest')
             end
             
-
+            RTV = median(respTime(logical(validity)));
+            RTI = median(respTime(~logical(validity)));
+            
             % Plot the d-prime of each condition (if in train4 or main)
             subplot(2,3,2); y=[dprime_valid dprime_invalid]; hold on;
             bar(1,y(1),.5,'FaceColor',[0 0 .8]);%, 'FaceAlpha',.5);

@@ -1,17 +1,19 @@
 %% Simple script for simple behavioral analysis and monitoring of observer's performances
 
-function []=decatsy_behavioral_simpleAnalysis_v2(subject_ind, arg2,...
+function []=decatsy_behavioral_simpleAnalysis_v2(subject_ind, sess, arg2,...
     validAndCorrectSide, study_dir, allblocksEEGsess, rejectEEGrejectedTrials)
     addpath('./decatsy_funs/');
-    if ~exist('study_dir'); study_dir='./'; end
+    if ~exist('study_dir'); study_dir='./decatsy_data/'; end
     if ~exist('allblocksEEGsess'); allblocksEEGsess=0; end
     if ~exist('rejectEEGrejectedfiles'); rejectEEGrejectedTrials=0; end
     
     %results_dir=[study_dir sprintf('/subj%i/log_files/',subject_ind)];
+    results_dir=[study_dir 'subj' num2str(subject_ind) '/log_files/'];
+    
     if ~exist('validAndCorrectSide'); validAndCorrectSide=1; end
     if length(arg2)<=6
         experiment_phase=arg2;
-        listing = dir([results_dir '*.txt']); file_found=0; file_count=1;
+        listing = dir([results_dir 'subj' num2str(subject_ind) '_sess' num2str(sess) '_all.txt']); file_found=0; file_count=1;
         if isempty(listing)
             fprintf('NO FILES IN DIRECTORY'); return;
         else
@@ -36,6 +38,8 @@ function []=decatsy_behavioral_simpleAnalysis_v2(subject_ind, arg2,...
         '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s');
         experiment_phase=char(expPhase(2));
     end
+    
+    
     fprintf(['\n\nfile processed: ' processed_file '\n\n']);
 
     correctResp=str2double(correctResp(2:end)); cue=str2double(cue(2:end));
