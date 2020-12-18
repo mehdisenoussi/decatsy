@@ -1,4 +1,5 @@
-# script to compute ERPs and Time-frequency transforms of ISI1
+# script to compute and plot ERPs of ISI1
+
 import numpy as np
 from scipy import signal as sig
 from scipy import stats
